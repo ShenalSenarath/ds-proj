@@ -26,10 +26,11 @@ public class StartNode {
             System.out.println("Registering Node with the Bootstrap Server....");
             BootstrapServer.startConnection(getByName(args[1]),Integer.parseInt(args[2]));
             BootstrapServer server=BootstrapServer.getInstance();
-            if(server.registerNode(thisNode))
+            if(server.registerNode(thisNode, args[3]))
                 System.out.println("Node Successfully registered with the Bootstrap Server. ");
             else
                 System.out.println("Error registering node");
+
             System.out.println("UDP Server for the Node initializing....");
             Thread thread = new Thread(thisNode);
             thread.start();
@@ -38,25 +39,21 @@ public class StartNode {
             System.out.println("Node joining with neighbours...");
             thisNode.joinNeighbours();
 
+            /*
             System.out.println("Add the titles in this Node:");
             System.out.println("Syntax: title1,title2,title3");
-
 
             Scanner scanIn = new Scanner(System.in);
             String titles = scanIn.nextLine();
 
             scanIn.close();
             thisNode.setFileList(titles.split(","));
-
-
-
-
-
+            */
 
         }catch(NumberFormatException | ArrayIndexOutOfBoundsException e){
             System.out.println("Please enter the details in the correct format to start the Node.");
             System.out.println("Syntax: java StartNode NodePort BootstrapServerIP BootstrapServerPort ");
-            System.out.println("Eg: java StartNode 7001 127.0.0.1 8000");
+            System.out.println("Eg: java StartNode 7001 127.0.0.1 8000 NodeShenal");
             System.exit(10);
         } catch (UnknownHostException e) {
             System.out.println("Cannot determine the host address.");
@@ -69,8 +66,6 @@ public class StartNode {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-
-
     }
 
     public static void testServer() throws Exception {
@@ -81,7 +76,7 @@ public class StartNode {
 
         Node node = new Node(8000);
 
-        server.registerNode(node);
+        server.registerNode(node,"TestNode");
 
 
     }

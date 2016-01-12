@@ -14,7 +14,7 @@ import java.net.Socket;
  */
 public class BootstrapServer {
 
-    public final static String USERNAME="Shenal1234" ;
+    public final static String USERNAME="Shenal1" ;
 
     private static BootstrapServer instance;
     private InetAddress ip;
@@ -31,10 +31,8 @@ public class BootstrapServer {
         if (instance !=null){
             System.out.println("Server is already started.");
         }else {
-            instance=new BootstrapServer(ip,port);
+            instance = new BootstrapServer(ip, port);
         }
-
-
     }
 
     private BootstrapServer(InetAddress ip,int port) {
@@ -61,8 +59,8 @@ public class BootstrapServer {
     /*Send msg format: length REG IP_address port_no username
     *Receive msg format: length REGOK no_nodes IP_1 port_1 IP_2 port_2
     */
-    public boolean registerNode(Node node) throws IOException {
-        String msg=" REG "+node.getNodeIP().getHostAddress()+" "+node.getNodePort()+" "+USERNAME;
+    public boolean registerNode(Node node, String usr_name) throws IOException {
+        String msg=" REG "+node.getNodeIP().getHostAddress()+" "+node.getNodePort()+" "+usr_name;
         int size = msg.length();
         String formattedSize = String.format("%04d", (size+4));
         String finalMsg=formattedSize.concat(msg);
@@ -79,7 +77,5 @@ public class BootstrapServer {
             node.addPeer(currentPeerNode);
         }
         return true;
-
     }
-
 }
