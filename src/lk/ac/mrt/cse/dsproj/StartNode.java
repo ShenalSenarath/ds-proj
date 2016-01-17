@@ -18,24 +18,53 @@ public class StartNode {
     }
 
     public static void startNode(String args[]){
-
+        int attempt_count = 0;
         try{
             System.out.println("Initializing Node.....");
             int port = Integer.parseInt(args[0]);
             Node thisNode = new Node(port);
             System.out.println("Registering Node with the Bootstrap Server....");
+
+            //bootstrap server ip address and port
             BootstrapServer.startConnection(getByName(args[1]),Integer.parseInt(args[2]));
             BootstrapServer server=BootstrapServer.getInstance();
-            if(server.registerNode(thisNode, args[3]))
+            boolean success = false;
+
+            while(attempt_count < 3){
+                if(server.registerNode(thisNode, args[3])){
+                    System.out.println("Node Successfully registered with the Bootstrap Server. ");
+                    success = true;
+                    break;
+                }else{
+                    Thread.sleep(5000);
+                    attempt_count++;
+                    System.out.print("Attempt " + attempt_count + " :");
+                    System.out.println("Error registering node");
+                    //server.unregisterNode(thisNode, args[3]);
+                    //need to make sure at what stage we need to unregister. perhaps send some int code relevant to each stage.
+                    //e.g if request was successful and only the reading response got issues then we might want to unregister.
+                }
+            }
+
+            if(!success){
+                System.exit(1);
+            }
+
+            /*
+            if(server.registerNode(thisNode, args[3])){
                 System.out.println("Node Successfully registered with the Bootstrap Server. ");
-            else
+            }else{
+            	attempt_count++;
                 System.out.println("Error registering node");
+                System.exit(1);
+            }*/
 
             System.out.println("UDP Server for the Node initializing....");
             Thread thread = new Thread(thisNode);
             thread.start();
 
             Thread.sleep((long)1000);
+
             System.out.println("Node joining with neighbours...");
             thisNode.joinNeighbours();
 
@@ -73,11 +102,7 @@ public class StartNode {
         BootstrapServer server = BootstrapServer.getInstance();
 
         //server.sendMsg("test");
-
         Node node = new Node(8000);
-
         server.registerNode(node,"TestNode");
-
-
     }
 }

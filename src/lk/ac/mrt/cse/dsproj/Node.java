@@ -5,6 +5,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.*;
+import java.io.*;
 import java.util.ArrayList;
 
 /**
@@ -77,35 +78,66 @@ public class Node implements Runnable {
         byte[] receiveData = new byte[256];
 
         while(true)
-           try{
-               //TODO: Implement it correctly
-              DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
-              serverSocket.receive(receivePacket);
+            try{
+                //TODO: Implement it correctly
+                DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
+                serverSocket.receive(receivePacket);
 
-              String sentence = new String( receivePacket.getData());
-              System.out.println("RECEIVED: " + sentence);
-              InetAddress IPAddress = receivePacket.getAddress();
+                String sentence = new String( receivePacket.getData());
+                System.out.println("RECEIVED: " + sentence);
+                InetAddress IPAddress = receivePacket.getAddress();
 
-              String str = sentence.substring(6,9);
-              System.out.println(str);
+                //str = sentence.substring(5,8); JOI
+                String [] resultArr = sentence.split(" ");
+                //System.out.println(resultArr[1]);
 
-               switch (str){
-                  case "JOI":
-                      JoinReqHandler jh = new JoinReqHandler(sentence, this);
-                      jh.start();
-                      break;
+                switch (resultArr[1]){
+                    case "JOIN":
+                        System.out.println("Join request found. Passing to handler");
+                        JoinReqHandler jh = new JoinReqHandler(sentence, this);
+                        jh.start();
+                        break;
 
-                  case "SER":
-                      SearchReqHandler sh = new SearchReqHandler(sentence, this);
-                      sh.start();
-                      break;
+                    case "JOINOK":
+                        if(resultArr[2].trim().equals("0000")){
+                            System.out.println("JOIN request successful");
+                        }else{
+                            if(resultArr[2].trim().equals("9999")){
+                                System.out.println("JOIN request failed");
+                            }else{
+                                System.out.println("JOIN request failed with UNKNOWN ERROR");
+                            }
+                        }
+                        break;
 
-                  default:
-                      System.out.println("Invalid Message");
-              }
-           } catch (Exception e ){
-               e.printStackTrace();
-           }
+                    case "LEAVE":
+                        System.out.println("LEAVE: not yet implemented");
+                        break;
+
+                    case "LEAVEOK":
+                        if(resultArr[2].trim().equals("0000")){
+                            System.out.println("LEAVE request successful");
+                        }else{
+                            if(resultArr[2].trim().equals("9999")){
+                                System.out.println("LEAVE request failed");
+                            }else{
+                                System.out.println("LEAVE request failed with UNKNOWN ERROR");
+                            }
+                        }
+                        break;
+
+                    case "SER":
+                        System.out.println("Search request found. Passing to handler");
+                        SearchReqHandler sh = new SearchReqHandler(sentence, this);
+                        sh.start();
+                        break;
+
+                    default:
+                        System.out.println("Invalid Message");
+                }
+            } catch (Exception e ){
+                e.printStackTrace();
+            }
     }
 
     public void joinNeighbours() {
@@ -134,18 +166,18 @@ public class Node implements Runnable {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
         }
     }
 
     public String sendMessage(InetAddress ip, int port, String msg) throws IOException {
-        String serverResponse;
-        System.out.println("TO Server: "+ msg);
+        String nodeResponse;
+        System.out.println("TO Node: "+ msg);
         DatagramPacket packet;
         DatagramSocket socket = new DatagramSocket();
 
         byte[] sendBuf = new byte[msg.length()];
         sendBuf = msg.getBytes();
+
         packet = new DatagramPacket(sendBuf, sendBuf.length, ip, port);
         socket.send(packet);
 
@@ -153,8 +185,9 @@ public class Node implements Runnable {
         packet = new DatagramPacket(receiveBuf, receiveBuf.length);
         socket.receive(packet);
 
-        serverResponse = new String(packet.getData(), 0, packet.getLength());
-        return serverResponse;
+        nodeResponse = new String(packet.getData(), 0, packet.getLength());
+        System.out.println("From Node: "+ nodeResponse);
+        return nodeResponse;
     }
 
     private boolean joinNeighbour(Node node) throws IOException {
@@ -171,7 +204,7 @@ public class Node implements Runnable {
          */
 
         //TODO: implement method to join
-        String msg=" JOIN "+node.getNodeIP().getHostAddress()+" "+node.getNodePort()+" ";
+        String msg=" JOIN "+ this.getNodeIP().getHostAddress()+" "+ this.getNodePort()+" ";
         int size = msg.length();
         String formattedSize = String.format("%04d", (size+4));
         String finalMsg=formattedSize.concat(msg);

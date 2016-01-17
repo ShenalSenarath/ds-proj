@@ -26,9 +26,10 @@ public class JoinReqHandler extends Thread {
             e.printStackTrace();
         }
 
+        System.out.println("Accepting request to be added as neighbour");
         mainNode.addNeighbour(node);
 
-        String msg=" JOINOK "+"0";
+        String msg=" JOINOK "+"0000";
         int size = msg.length();
         String formattedSize = String.format("%04d", (size+4));
         String finalMsg=formattedSize.concat(msg);
