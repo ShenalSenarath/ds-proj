@@ -9,6 +9,7 @@ import java.util.Random;
 import java.util.Arrays;
 import java.util.List;
 import static java.net.InetAddress.getByName;
+import java.util.LinkedList;
 
 /**
  * Created by shenal on 1/8/16.
@@ -46,10 +47,11 @@ public class StartNode {
         //choose randomly between 3,4,5
         int file_count = r.nextInt(3) + 3 ; //random.nextInt(max - min + 1) + min
         String []fileList = new String[file_count];
-        List<String> all_files_list = Arrays.asList(all_files); //String [] to List
+        List<String> all_files_list = new LinkedList<String>(Arrays.asList(all_files));
+        //List<String> all_files_list = Arrays.asList(all_files); //String [] to List
 
         for( int i=0; i < file_count; i++){
-            fileList[i] = all_files_list.remove(r.nextInt(20));
+            fileList[i] = all_files_list.remove(r.nextInt(20) - i);
         }
         return fileList;
     }

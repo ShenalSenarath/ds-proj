@@ -2,43 +2,89 @@ package lk.ac.mrt.cse.dsproj;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by shenal on 1/4/16.
  */
 public class SearchQuery {
     static final int INITIALHOPS=10;
-    private int hops;
-    private String searchString;
-    private InetAddress senderIP;
-    private int senderPort;
+    private int hopLimit;
+    private String[] searchString;
+    private String searchStringFull;
+    private Node requester;
+    private int hopsLeft;
 
-	/*
+    //String format: length SER IP port file_name
+    public SearchQuery(String UDPData) {
+        String dataArr[] = UDPData.split(" ");
+        try {
+            requester = new Node(InetAddress.getByName(dataArr[2]),Integer.parseInt(dataArr[3]));
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        }
+
+        Pattern p = Pattern.compile("\"([^\"]*)\"");
+        Matcher m = p.matcher(UDPData);
+        if (m.find()) {
+            this.searchStringFull = m.group(1);
+            this.searchString = searchStringFull.split(" ");
+            System.out.println(this.searchStringFull);
+        }else{
+            System.out.println("Search find name not found");
+            System.exit(1);
+        }
+
+        if (dataArr.length == 4 + this.searchString.length + 1) {
+            System.out.println("Optional argument hop count is gives as " + dataArr[5]);
+            this.hopLimit = Integer.parseInt(dataArr[5]);
+            this.hopsLeft = hopLimit;
+        } else {
+            System.out.println("Optional argument hop count is not given. Set to " + INITIALHOPS);
+            this.hopLimit = INITIALHOPS;
+            this.hopsLeft = INITIALHOPS;
+        }
+    }
+
+    /*
     public SearchQuery(Node senderNode,String searchString) {
         this.senderIP = senderNode.getNodeIP();
+
         this.senderPort = senderNode.getNodePort();
         this.searchString = searchString;
         this.hops = INITIALHOPS;
     }*/
 
-    //String format: length SER IP port file_name
-    public SearchQuery(String UDPData){
-        String dataArr[]= UDPData.split(" ");
-        try {
-            this.senderIP = InetAddress.getByName(dataArr[2]);
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
-        }
+    public int getHopLimit() {
+        return hopLimit;
+    }
 
-        this.senderPort = Integer.parseInt(dataArr[3]);
-        this.searchString = dataArr[4];
+    public String[] getSearchString() {
+        return searchString;
+    }
 
-        if (dataArr.length == 6){
-            System.out.println("Optional argument hop count is gives as " + dataArr[5]);
-            this.hops = Integer.parseInt(dataArr[5]);
+    public String getSearchStringFull() {
+        return searchStringFull;
+    }
+
+    public Node getRequester(){
+        return requester;
+    }
+
+    public int getHopsLeft(){
+        return hopsLeft;
+    }
+
+    public void decrementHopsLeft(){
+        hopsLeft--;
+    }
+
+    public boolean hopsLeft(){
+        if(hopsLeft > 0){
+            return true;
         }else{
-            System.out.println("Optional argument hop count is not given. Set to "+ INITIALHOPS);
-            this.hops = INITIALHOPS;
+            return false;
         }
     }
 }

@@ -137,8 +137,21 @@ public class Node implements Runnable {
                         sh.start();
                         break;
 
+                    case "SEROK":
+                        System.out.println("Search results returned");
+                        System.out.println(sentence);
+                        break;
+
+                    case "ERROR":
+                        //Generic error message, to indicate that a given command is not understood.
+                        //For storing and searching files/keys this should be send to the initiator of the message.
+                        System.out.println("Generic error. Command is not understood");
+                        System.exit(1);
+                        break;
+
                     default:
                         System.out.println("Invalid Message");
+                        System.exit(1);
                 }
             } catch (Exception e ){
                 e.printStackTrace();
@@ -212,6 +225,37 @@ public class Node implements Runnable {
         */
     }
 
+    public void respondToSearch(Node node, String result, int hops) throws IOException{
+        System.out.println("Responding to node" + node);
+        //length SEROK no_files IP port hops filename1 filename2 ... ...
+        //e.g 0114 SEROK 3 129.82.128.1 2301 baby_go_home.mp3 baby_come_back.mp3 baby.mpeg
+
+        String msg=" SEROK "+ this.getNodeIP().getHostAddress()+" "+ this.getNodePort()+" ";
+        msg = msg + hops + " ";
+
+        String []arr = result.split("###");
+        for(int i=0; i < arr.length; i++){
+            msg = msg + "\""+arr[i]+"\"" + " ";
+        }
+
+        int size = msg.length();
+        String formattedSize = String.format("%04d", (size+4));
+        String finalMsg=formattedSize.concat(msg);
+        sendMessage(node.getNodeIP(), node.getNodePort(), finalMsg);
+    }
+
+    public void propagateSearchQuery(Node node, SearchQuery sq) throws IOException{
+        System.out.println("Issuing search query to node" + node);
+        //length SER IP port file_name hops
+
+        String msg=" SER "+ node.getNodeIP().getHostAddress()+" "+ node.getNodePort()+" ";
+        msg = msg + sq.getSearchStringFull() + " " + sq.getHopsLeft() + " ";
+        int size = msg.length();
+        String formattedSize = String.format("%04d", (size+4));
+        String finalMsg=formattedSize.concat(msg);
+        sendMessage(node.getNodeIP(), node.getNodePort(), finalMsg);
+    }
+
     private void joinNeighbour(Node node) throws IOException {
         System.out.println("Joining with node" + node);
         //length JOIN IP_address port_no
@@ -221,6 +265,7 @@ public class Node implements Runnable {
         String formattedSize = String.format("%04d", (size+4));
         String finalMsg=formattedSize.concat(msg);
         sendMessage(node.getNodeIP(), node.getNodePort(), finalMsg);
+        addNeighbour(node);
 
         /*
         String result = sendMessage(node.getNodeIP(), node.getNodePort(), finalMsg);
@@ -234,7 +279,7 @@ public class Node implements Runnable {
     }
 
     public void leave(Node node) throws IOException{
-        System.out.println("Node leaving which has ip "+node.getNodeIP());
+        System.out.println("Node leaving the system. ");
         // length LEAVE IP_address port_no
 
         String msg=" LEAVE "+ this.getNodeIP().getHostAddress()+" "+ this.getNodePort()+" ";
@@ -242,6 +287,7 @@ public class Node implements Runnable {
         String formattedSize = String.format("%04d", (size+4));
         String finalMsg=formattedSize.concat(msg);
         sendMessage(node.getNodeIP(), node.getNodePort(), finalMsg);
+        removeNeighbour(node);
 
         /*
         String result = sendMessage(node.getNodeIP(), node.getNodePort(), finalMsg);
@@ -249,7 +295,7 @@ public class Node implements Runnable {
         if (!resultArr[1].equals("LEAVEOK") || (Integer.parseInt(resultArr[2]) >= 9999)) {
             return false;
         }
-        //addNeighbour(node);
+        //removeNeighbour(node);
         return true;
         */
     }
@@ -265,9 +311,24 @@ public class Node implements Runnable {
         }
     }
 
-    public void searchFile(Node node, String file, int hops){
-        //search here
-        //search in neighbours
-        //go by reducing hop count;
+    //Searching for file name in this node
+    public String searchFileList(SearchQuery sq){
+        String result = "";
+
+        String searchStringFull = sq.getSearchStringFull();
+        String []searchString = sq.getSearchString();
+
+        //if(searchString.length == 1){
+        for(int i=0; i < fileList.length; i++){
+            for(int j=0; j < searchString.length; j++){
+                String []fileArr = fileList[i].split(" ");
+                for(int k=0; k < fileArr.length; k++){
+                    if(searchString[j].equals(fileArr[k])){
+                        result = result + fileList[i] + "###";
+                    }
+                }
+            }
+        }
+        return result;
     }
 }
