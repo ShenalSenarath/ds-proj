@@ -120,6 +120,8 @@ public class StartNode {
             thisNode.setFileList(titles.split(","));
             */
 
+            //thisNode.initiateSearch();
+
         }catch(NumberFormatException | ArrayIndexOutOfBoundsException e){
             System.out.println("Please enter the details in the correct format to start the Node.");
             System.out.println("Syntax: java StartNode NodePort BootstrapServerIP BootstrapServerPort ");

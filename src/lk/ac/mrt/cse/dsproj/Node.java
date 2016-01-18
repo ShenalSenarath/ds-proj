@@ -84,7 +84,6 @@ public class Node implements Runnable {
 
         while(true)
             try{
-                //TODO: Implement it correctly
                 DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
                 serverSocket.receive(receivePacket);
 
@@ -213,16 +212,6 @@ public class Node implements Runnable {
 
         packet = new DatagramPacket(sendBuf, sendBuf.length, ip, port);
         socket.send(packet);
-
-	/*
-        byte[] receiveBuf = new byte[16];
-        packet = new DatagramPacket(receiveBuf, receiveBuf.length);
-        socket.receive(packet);
-
-        nodeResponse = new String(packet.getData(), 0, packet.getLength());
-        System.out.println("From Node: "+ nodeResponse);
-        return nodeResponse;
-        */
     }
 
     public void respondToSearch(Node node, String result, int hops) throws IOException{
@@ -244,8 +233,78 @@ public class Node implements Runnable {
         sendMessage(node.getNodeIP(), node.getNodePort(), finalMsg);
     }
 
+    public void initiateSearch(String file_name, int hops) throws IOException{
+        System.out.println("Initiating search query.");
+        //length SER IP port file_name hops
+
+        SearchQuery query = new SearchQuery(this, file_name, hops);
+        String result = this.searchFileList(query);
+
+        if(result.equals("")) { //returned empty string
+            //this node does not have any matching files
+            //propagating to neighbours
+            System.out.println("No matching files found. Propagating request to neighbours");
+            ArrayList<Node> neighbours = this.getNeighbours();
+            query.decrementHopsLeft();
+            while(!neighbours.isEmpty() && query.hopsLeft()){
+                Node n = neighbours.remove(0);
+                try{
+                    this.propagateSearchQuery(n, query);
+                }catch (IOException e){
+                    System.out.println("Error while propagating search query");
+                    e.printStackTrace();
+                    System.exit(1);
+                }
+                query.decrementHopsLeft();
+            }
+        }else{
+            try{
+                this.respondToSearch(query.getRequester(), result, query.getHopLimit() - query.getHopsLeft());
+            } catch (IOException e){
+                System.out.println("Error while calling respond to search from mainNode");
+                e.printStackTrace();
+                System.exit(1);
+            }
+        }
+    }
+
+    public void initiateSearch(String file_name) throws IOException{
+        System.out.println("Initiating search query.");
+        //length SER IP port file_name hops
+
+        SearchQuery query = new SearchQuery(this, file_name);
+        String result = this.searchFileList(query);
+
+        if(result.equals("")) { //returned empty string
+            //this node does not have any matching files
+            //propagating to neighbours
+            System.out.println("No matching files found. Propagating request to neighbours");
+            ArrayList<Node> neighbours = this.getNeighbours();
+            query.decrementHopsLeft();
+            while(!neighbours.isEmpty() && query.hopsLeft()){
+                Node n = neighbours.remove(0);
+                try{
+                    this.propagateSearchQuery(n, query);
+                }catch (IOException e){
+                    System.out.println("Error while propagating search query");
+                    e.printStackTrace();
+                    System.exit(1);
+                }
+                query.decrementHopsLeft();
+            }
+        }else{
+            try{
+                this.respondToSearch(query.getRequester(), result, query.getHopLimit() - query.getHopsLeft());
+            } catch (IOException e){
+                System.out.println("Error while calling respond to search from mainNode");
+                e.printStackTrace();
+                System.exit(1);
+            }
+        }
+    }
+
     public void propagateSearchQuery(Node node, SearchQuery sq) throws IOException{
-        System.out.println("Issuing search query to node" + node);
+        System.out.println("Propagating search query to node" + node);
         //length SER IP port file_name hops
 
         String msg=" SER "+ node.getNodeIP().getHostAddress()+" "+ node.getNodePort()+" ";
@@ -266,16 +325,6 @@ public class Node implements Runnable {
         String finalMsg=formattedSize.concat(msg);
         sendMessage(node.getNodeIP(), node.getNodePort(), finalMsg);
         addNeighbour(node);
-
-        /*
-        String result = sendMessage(node.getNodeIP(), node.getNodePort(), finalMsg);
-        String [] resultArr=result.split(" ");
-        if (!resultArr[1].equals("JOINOK") || (Integer.parseInt(resultArr[2]) >= 9999)) {
-            return false;
-        }
-        addNeighbour(node);
-        return true;
-        */
     }
 
     public void leave(Node node) throws IOException{
@@ -288,16 +337,6 @@ public class Node implements Runnable {
         String finalMsg=formattedSize.concat(msg);
         sendMessage(node.getNodeIP(), node.getNodePort(), finalMsg);
         removeNeighbour(node);
-
-        /*
-        String result = sendMessage(node.getNodeIP(), node.getNodePort(), finalMsg);
-        String [] resultArr=result.split(" ");
-        if (!resultArr[1].equals("LEAVEOK") || (Integer.parseInt(resultArr[2]) >= 9999)) {
-            return false;
-        }
-        //removeNeighbour(node);
-        return true;
-        */
     }
 
     public void printFIleList(String [] files){

@@ -47,14 +47,21 @@ public class SearchQuery {
         }
     }
 
-    /*
-    public SearchQuery(Node senderNode,String searchString) {
-        this.senderIP = senderNode.getNodeIP();
+    public SearchQuery(Node node,String searchString) {
+        this.requester = node;
+        this.searchStringFull = searchString;
+        this.searchString = searchString.split(" ");
+        this.hopLimit = INITIALHOPS;
+        this.hopsLeft = INITIALHOPS;
+    }
 
-        this.senderPort = senderNode.getNodePort();
-        this.searchString = searchString;
-        this.hops = INITIALHOPS;
-    }*/
+    public SearchQuery(Node node,String searchString, int hops) {
+        this.requester = node;
+        this.searchStringFull = searchString;
+        this.searchString = searchString.split(" ");
+        this.hopLimit = hops;
+        this.hopsLeft = hops;
+    }
 
     public int getHopLimit() {
         return hopLimit;
