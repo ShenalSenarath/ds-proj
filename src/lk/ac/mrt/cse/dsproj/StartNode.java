@@ -5,16 +5,53 @@ import lk.ac.mrt.cse.dsproj.Communication.BootstrapServer;
 import java.io.IOException;
 import java.net.UnknownHostException;
 import java.util.Scanner;
-
+import java.util.Random;
+import java.util.Arrays;
+import java.util.List;
 import static java.net.InetAddress.getByName;
-
 
 /**
  * Created by shenal on 1/8/16.
  */
 public class StartNode {
+    //Need to implement methods to read files names and queries and add it to a list.
+    private static String[] all_files = {
+            "Adventures of Tintin",
+            "Jack and Jill",
+            "Glee",
+            "The Vampire Diarie",
+            "King Arthur",
+            "Windows XP",
+            "Harry Potter",
+            "Kung Fu Panda",
+            "Lady Gaga",
+            "Twilight",
+            "Windows 8",
+            "Mission Impossible",
+            "Turn Up The Music",
+            "Super Mario",
+            "American Pickers",
+            "Microsoft Office 2010",
+            "Happy Feet",
+            "Modern Family",
+            "American Idol",
+            "Hacking for Dummies"	};
+
     public static void main(String args[]) throws Exception {
         startNode(args);
+    }
+
+    public static String[] getRandomFiles(){
+        Random r = new Random();
+        //choose randomly between 3,4,5
+        int file_count = r.nextInt(3) + 3 ; //random.nextInt(max - min + 1) + min
+        String []fileList = new String[file_count];
+        List<String> all_files_list = Arrays.asList(all_files); //String [] to List
+
+        for( int i=0; i < file_count; i++){
+            fileList[i] = all_files_list.remove(r.nextInt(20));
+        }
+        return fileList;
     }
 
     public static void startNode(String args[]){
@@ -34,6 +71,8 @@ public class StartNode {
                 if(server.registerNode(thisNode, args[3])){
                     System.out.println("Node Successfully registered with the Bootstrap Server. ");
                     success = true;
+                    //randomly add fiels
+                    thisNode.setFileList(getRandomFiles());
                     break;
                 }else{
                     Thread.sleep(5000);
@@ -62,12 +101,12 @@ public class StartNode {
             System.out.println("UDP Server for the Node initializing....");
             Thread thread = new Thread(thisNode);
             thread.start();
-
             Thread.sleep((long)1000);
 
             System.out.println("Node joining with neighbours...");
             thisNode.joinNeighbours();
 
+            //File adding part done differently
             /*
             System.out.println("Add the titles in this Node:");
             System.out.println("Syntax: title1,title2,title3");
@@ -97,6 +136,7 @@ public class StartNode {
         }
     }
 
+    /*
     public static void testServer() throws Exception {
         BootstrapServer.startConnection(getByName("localhost"),2345);
         BootstrapServer server = BootstrapServer.getInstance();
@@ -104,5 +144,5 @@ public class StartNode {
         //server.sendMsg("test");
         Node node = new Node(8000);
         server.registerNode(node,"TestNode");
-    }
+    }*/
 }

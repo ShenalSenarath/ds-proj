@@ -111,7 +111,7 @@ public class BootstrapServer {
         String formattedSize = String.format("%04d", (size+4));
         String finalMsg = formattedSize.concat(msg);
 
-        String result =sendMsg(finalMsg);// Expected Format: length REGOK numberOfNodes ip1 port1 ip2 port2
+        String result = sendMsg(finalMsg);// Expected Format: length REGOK numberOfNodes ip1 port1 ip2 port2
         String [] resultArr=result.split(" ");
         if (!resultArr[1].equals("REGOK") || (Integer.parseInt(resultArr[2])>=9996)) {
             return false;

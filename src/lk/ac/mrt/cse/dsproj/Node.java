@@ -20,6 +20,7 @@ public class Node implements Runnable {
 
     public void setFileList(String[] fileList) {
         this.fileList = fileList;
+        this.printFIleList(fileList);
     }
 
     public Node(int nodePort) throws UnknownHostException {
@@ -58,6 +59,10 @@ public class Node implements Runnable {
         neighbours.add(neighbour);
     }
 
+    public void removeNeighbour(Node neighbour){
+        neighbours.remove(neighbour);
+    }
+
     public ArrayList<Node> getPeers() {
         return peers;
     }
@@ -87,9 +92,7 @@ public class Node implements Runnable {
                 System.out.println("RECEIVED: " + sentence);
                 InetAddress IPAddress = receivePacket.getAddress();
 
-                //str = sentence.substring(5,8); JOI
                 String [] resultArr = sentence.split(" ");
-                //System.out.println(resultArr[1]);
 
                 switch (resultArr[1]){
                     case "JOIN":
@@ -111,7 +114,9 @@ public class Node implements Runnable {
                         break;
 
                     case "LEAVE":
-                        System.out.println("LEAVE: not yet implemented");
+                        System.out.println("Join request found. Passing to handler");
+                        LeaveReqHandler lh = new LeaveReqHandler(sentence, this);
+                        lh.start();
                         break;
 
                     case "LEAVEOK":
@@ -169,7 +174,22 @@ public class Node implements Runnable {
         }
     }
 
-    public String sendMessage(InetAddress ip, int port, String msg) throws IOException {
+    public void leaveSystem() {
+        int numberOfNeighbours = neighbours.size();
+        if(numberOfNeighbours > 0){ //When there are no neighbours for this node
+            for (Node n : neighbours) {
+                try {
+                    leave(n);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }else{
+            System.out.println("No neighbours to inform leaving");
+        }
+    }
+
+    public void sendMessage(InetAddress ip, int port, String msg) throws IOException {
         String nodeResponse;
         System.out.println("TO Node: "+ msg);
         DatagramPacket packet;
@@ -181,6 +201,7 @@ public class Node implements Runnable {
         packet = new DatagramPacket(sendBuf, sendBuf.length, ip, port);
         socket.send(packet);
 
+	/*
         byte[] receiveBuf = new byte[16];
         packet = new DatagramPacket(receiveBuf, receiveBuf.length);
         socket.receive(packet);
@@ -188,35 +209,60 @@ public class Node implements Runnable {
         nodeResponse = new String(packet.getData(), 0, packet.getLength());
         System.out.println("From Node: "+ nodeResponse);
         return nodeResponse;
+        */
     }
 
-    private boolean joinNeighbour(Node node) throws IOException {
+    private void joinNeighbour(Node node) throws IOException {
         System.out.println("Joining with node" + node);
+        //length JOIN IP_address port_no
 
-        /*
-        length JOIN IP_address port_no
-        e.g., 0027 JOIN 64.12.123.190 432
-        length – Length of the entire message including 4 characters used to indicate the length. In xxxx format.
-        JOIN – Join request.
-        IP_address – IP address in xxx.xxx.xxx.xxx format. This is the IP address other nodes will use to reach you.
-        Indicated with up to 15 characters.
-        port_no – Port number. This is the port number that other nodes will connect to. Up to 5 characters.
-         */
-
-        //TODO: implement method to join
         String msg=" JOIN "+ this.getNodeIP().getHostAddress()+" "+ this.getNodePort()+" ";
         int size = msg.length();
         String formattedSize = String.format("%04d", (size+4));
         String finalMsg=formattedSize.concat(msg);
+        sendMessage(node.getNodeIP(), node.getNodePort(), finalMsg);
 
+        /*
         String result = sendMessage(node.getNodeIP(), node.getNodePort(), finalMsg);
-
         String [] resultArr=result.split(" ");
         if (!resultArr[1].equals("JOINOK") || (Integer.parseInt(resultArr[2]) >= 9999)) {
             return false;
         }
         addNeighbour(node);
         return true;
+        */
+    }
+
+    public void leave(Node node) throws IOException{
+        System.out.println("Node leaving which has ip "+node.getNodeIP());
+        // length LEAVE IP_address port_no
+
+        String msg=" LEAVE "+ this.getNodeIP().getHostAddress()+" "+ this.getNodePort()+" ";
+        int size = msg.length();
+        String formattedSize = String.format("%04d", (size+4));
+        String finalMsg=formattedSize.concat(msg);
+        sendMessage(node.getNodeIP(), node.getNodePort(), finalMsg);
+
+        /*
+        String result = sendMessage(node.getNodeIP(), node.getNodePort(), finalMsg);
+        String [] resultArr=result.split(" ");
+        if (!resultArr[1].equals("LEAVEOK") || (Integer.parseInt(resultArr[2]) >= 9999)) {
+            return false;
+        }
+        //addNeighbour(node);
+        return true;
+        */
+    }
+
+    public void printFIleList(String [] files){
+        if(files != null){
+            System.out.println("File List :");
+            for(int i=0; i< files.length; i++){
+                System.out.println(files[i]);
+            }
+        }else{
+            System.out.println("File list is not initialized.");
+        }
     }
 
     public void searchFile(Node node, String file, int hops){

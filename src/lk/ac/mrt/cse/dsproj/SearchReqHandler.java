@@ -9,6 +9,7 @@ import java.net.UnknownHostException;
 public class SearchReqHandler extends Thread{
     private String requestMessage;
     private Node mainNode;
+    private SearchQuery query;
 
     public SearchReqHandler(String sentence, Node n) {
         requestMessage = sentence;
@@ -17,17 +18,10 @@ public class SearchReqHandler extends Thread{
 
     @Override
     public void run() {
-        String [] resultArr2 = requestMessage.split(" ");
-        InetAddress ip = null;
-        try {
-            ip = InetAddress.getByName(resultArr2[2]);
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
-        }
-        int port = Integer.parseInt(resultArr2[3]);
-        String fileName = resultArr2[4];
-        int hops = Integer.parseInt(resultArr2[5]);
-        Node node = new Node(ip, port);
-        mainNode.searchFile(node, fileName, hops);
+        //length SER IP port file_name hops
+        query = new SearchQuery(requestMessage);
+
+
+        //mainNode.searchFile(node, fileName, hops);
     }
 }

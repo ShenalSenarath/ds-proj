@@ -5,20 +5,20 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 
 /**
- * Created by rajind on 1/12/16.
+ * Created by rajind on 1/12/17.
  */
-public class JoinReqHandler extends Thread {
+public class LeaveReqHandler extends Thread {
     private String requestMessage;
     private Node mainNode;
 
-    public JoinReqHandler(String sentence, Node n) {
+    public LeaveReqHandler(String sentence, Node n) {
         requestMessage = sentence;
         mainNode = n;
     }
 
     @Override
     public void run() {
-        //length JOIN IP_address port_no
+        // length LEAVE IP_address port_no
         String [] resultArr = requestMessage.split(" ");
         Node node = null;
         try {
@@ -27,10 +27,10 @@ public class JoinReqHandler extends Thread {
             e.printStackTrace();
         }
 
-        System.out.println("Accepting request to be added as neighbour");
-        mainNode.addNeighbour(node);
+        System.out.println("Accepting request to be removed from being a neighbour");
+        mainNode.removeNeighbour(node);
 
-        String msg=" JOINOK "+"0000";
+        String msg=" LEAVEOK "+"0000";
         int size = msg.length();
         String formattedSize = String.format("%04d", (size+4));
         String finalMsg=formattedSize.concat(msg);
