@@ -73,11 +73,12 @@ public class BootstrapServer {
 
         try{
             clientSocket = new Socket(ip, port);
-            clientSocket.setSoTimeout(10000);
+//            clientSocket.setSoTimeout(10000);
+//            clientSocket.setKeepAlive(true);
             DataOutputStream outToServer = new DataOutputStream(clientSocket.getOutputStream());
             BufferedReader inFromServer = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
             //DataInputStream inFromServer = new DataInputStream(clientSocket.getInputStream());
-            outToServer.writeBytes(msg);
+            outToServer.write(msg.getBytes());
             serverResponse = inFromServer.readLine();
         }catch (UnknownHostException e) {
             System.err.println("Don't know about host " + ip);
@@ -110,8 +111,9 @@ public class BootstrapServer {
         int size = msg.length();
         String formattedSize = String.format("%04d", (size+4));
         String finalMsg = formattedSize.concat(msg);
-
+        System.out.println("regMSG : "+finalMsg);
         String result = sendMsg(finalMsg);// Expected Format: length REGOK numberOfNodes ip1 port1 ip2 port2
+        System.out.println("result : "+result);
         String [] resultArr=result.split(" ");
         if (!resultArr[1].equals("REGOK") || (Integer.parseInt(resultArr[2])>=9996)) {
             return false;
@@ -119,7 +121,7 @@ public class BootstrapServer {
 
         int numberOfNodes=Integer.parseInt(resultArr[2]);
         for (int i = 0; i < numberOfNodes ; i++) {
-            Node currentPeerNode= new Node(InetAddress.getByName(resultArr[2*i+3]),Integer.parseInt(resultArr[2*i+4]));
+            Node currentPeerNode= new Node(InetAddress.getByName(resultArr[3*i+3]),Integer.parseInt(resultArr[3*i+4]));
             node.addPeer(currentPeerNode);
         }
         return true;
