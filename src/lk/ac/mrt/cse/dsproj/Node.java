@@ -307,8 +307,8 @@ public class Node implements Runnable {
         System.out.println("Propagating search query to node" + node);
         //length SER IP port file_name hops
 
-        String msg=" SER "+ node.getNodeIP().getHostAddress()+" "+ node.getNodePort()+" ";
-        msg = msg + sq.getSearchStringFull() + " " + sq.getHopsLeft() + " ";
+        String msg=" SER "+ this.getNodeIP().getHostAddress()+" "+ this.getNodePort()+" ";
+        msg = msg + "\""+ sq.getSearchStringFull() + "\" " + sq.getHopsLeft() + " ";
         int size = msg.length();
         String formattedSize = String.format("%04d", (size+4));
         String finalMsg=formattedSize.concat(msg);

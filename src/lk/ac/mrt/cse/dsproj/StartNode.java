@@ -109,16 +109,22 @@ public class StartNode {
             thisNode.joinNeighbours();
 
             //File adding part done differently
-            /*
+            
             System.out.println("Add the titles in this Node:");
             System.out.println("Syntax: title1,title2,title3");
 
             Scanner scanIn = new Scanner(System.in);
             String titles = scanIn.nextLine();
 
-            scanIn.close();
             thisNode.setFileList(titles.split(","));
-            */
+            
+            
+            System.out.println("Enter A File name to search ");
+            String fileName = scanIn.nextLine();
+            
+            scanIn.close();
+            thisNode.initiateSearch(fileName);
+            
 
             //thisNode.initiateSearch();
 
