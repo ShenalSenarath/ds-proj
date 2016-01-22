@@ -51,7 +51,7 @@ public class StartNode {
         //List<String> all_files_list = Arrays.asList(all_files); //String [] to List
 
         for( int i=0; i < file_count; i++){
-            fileList[i] = all_files_list.remove(r.nextInt(20) - i);
+            fileList[i] = all_files_list.remove(r.nextInt(all_files_list.size()-1) );
         }
         return fileList;
     }
@@ -110,13 +110,13 @@ public class StartNode {
 
             //File adding part done differently
             
-            System.out.println("Add the titles in this Node:");
-            System.out.println("Syntax: title1,title2,title3");
+//            System.out.println("Add the titles in this Node:");
+//            System.out.println("Syntax: title1,title2,title3");
 
             Scanner scanIn = new Scanner(System.in);
-            String titles = scanIn.nextLine();
+//            String titles = scanIn.nextLine();
 
-            thisNode.setFileList(titles.split(","));
+//            thisNode.setFileList(titles.split(","));
             
             
             System.out.println("Enter A File name to search ");
