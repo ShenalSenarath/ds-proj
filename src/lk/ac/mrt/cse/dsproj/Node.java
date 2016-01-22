@@ -7,6 +7,7 @@ import java.io.InputStreamReader;
 import java.net.*;
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Enumeration;
 
 /**
  * Created by shenal on 1/4/16.
@@ -25,7 +26,7 @@ public class Node implements Runnable {
 
     public Node(int nodePort) throws UnknownHostException {
         this.nodePort = nodePort;
-        this.nodeIP= InetAddress.getLocalHost();
+        this.nodeIP= getLocalAddress();
         peers = new ArrayList<Node>();
         neighbours= new ArrayList<Node>();
     }
@@ -369,5 +370,21 @@ public class Node implements Runnable {
             }
         }
         return result;
+    }
+    private static InetAddress getLocalAddress(){
+        try {
+            Enumeration<NetworkInterface> b = NetworkInterface.getNetworkInterfaces();
+            while( b.hasMoreElements()){
+                for ( InterfaceAddress f : b.nextElement().getInterfaceAddresses())
+                    if ( f.getAddress().isSiteLocalAddress())
+                        return f.getAddress();
+            }
+            return InetAddress.getLocalHost();
+        } catch (SocketException e) {
+            e.printStackTrace();
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }
