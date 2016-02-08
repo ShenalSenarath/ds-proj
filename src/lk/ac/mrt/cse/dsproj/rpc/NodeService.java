@@ -12,7 +12,6 @@ import org.apache.thrift.scheme.StandardScheme;
 
 import org.apache.thrift.scheme.TupleScheme;
 import org.apache.thrift.protocol.TTupleProtocol;
-import org.apache.thrift.protocol.TProtocolException;
 import org.apache.thrift.EncodingUtils;
 import org.apache.thrift.TException;
 import org.apache.thrift.async.AsyncMethodCallback;
@@ -22,13 +21,9 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.EnumMap;
-import java.util.Set;
-import java.util.HashSet;
 import java.util.EnumSet;
 import java.util.Collections;
 import java.util.BitSet;
-import java.nio.ByteBuffer;
-import java.util.Arrays;
 import javax.annotation.Generated;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,17 +34,21 @@ public class NodeService {
 
   public interface Iface {
 
-    public String join(String myIp, int myPort) throws org.apache.thrift.TException;
+    public String join(String requesterIP, int requesterPort) throws TException;
 
-    public String search(String keyWord, String requestorIP, String requestorPort, int hops) throws org.apache.thrift.TException;
+    public void search(String keyWord, String requesterIP, String requesterPort, int hops) throws TException;
+
+    public void sendResult(String senderIP, String senderPort, String resultFiles) throws TException;
 
   }
 
   public interface AsyncIface {
 
-    public void join(String myIp, int myPort, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
+    public void join(String requesterIP, int requesterPort, AsyncMethodCallback resultHandler) throws TException;
 
-    public void search(String keyWord, String requestorIP, String requestorPort, int hops, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
+    public void search(String keyWord, String requesterIP, String requesterPort, int hops, AsyncMethodCallback resultHandler) throws TException;
+
+    public void sendResult(String senderIP, String senderPort, String resultFiles, AsyncMethodCallback resultHandler) throws TException;
 
   }
 
@@ -73,21 +72,21 @@ public class NodeService {
       super(iprot, oprot);
     }
 
-    public String join(String myIp, int myPort) throws org.apache.thrift.TException
+    public String join(String requesterIP, int requesterPort) throws TException
     {
-      send_join(myIp, myPort);
+      send_join(requesterIP, requesterPort);
       return recv_join();
     }
 
-    public void send_join(String myIp, int myPort) throws org.apache.thrift.TException
+    public void send_join(String requesterIP, int requesterPort) throws TException
     {
       join_args args = new join_args();
-      args.setMyIp(myIp);
-      args.setMyPort(myPort);
+      args.setRequesterIP(requesterIP);
+      args.setRequesterPort(requesterPort);
       sendBase("join", args);
     }
 
-    public String recv_join() throws org.apache.thrift.TException
+    public String recv_join() throws TException
     {
       join_result result = new join_result();
       receiveBase(result, "join");
@@ -97,30 +96,49 @@ public class NodeService {
       throw new org.apache.thrift.TApplicationException(org.apache.thrift.TApplicationException.MISSING_RESULT, "join failed: unknown result");
     }
 
-    public String search(String keyWord, String requestorIP, String requestorPort, int hops) throws org.apache.thrift.TException
+    public void search(String keyWord, String requesterIP, String requesterPort, int hops) throws TException
     {
-      send_search(keyWord, requestorIP, requestorPort, hops);
-      return recv_search();
+      send_search(keyWord, requesterIP, requesterPort, hops);
+      recv_search();
     }
 
-    public void send_search(String keyWord, String requestorIP, String requestorPort, int hops) throws org.apache.thrift.TException
+    public void send_search(String keyWord, String requesterIP, String requesterPort, int hops) throws TException
     {
       search_args args = new search_args();
       args.setKeyWord(keyWord);
-      args.setRequestorIP(requestorIP);
-      args.setRequestorPort(requestorPort);
+      args.setRequesterIP(requesterIP);
+      args.setRequesterPort(requesterPort);
       args.setHops(hops);
       sendBase("search", args);
     }
 
-    public String recv_search() throws org.apache.thrift.TException
+    public void recv_search() throws TException
     {
       search_result result = new search_result();
       receiveBase(result, "search");
-      if (result.isSetSuccess()) {
-        return result.success;
-      }
-      throw new org.apache.thrift.TApplicationException(org.apache.thrift.TApplicationException.MISSING_RESULT, "search failed: unknown result");
+      return;
+    }
+
+    public void sendResult(String senderIP, String senderPort, String resultFiles) throws TException
+    {
+      send_sendResult(senderIP, senderPort, resultFiles);
+      recv_sendResult();
+    }
+
+    public void send_sendResult(String senderIP, String senderPort, String resultFiles) throws TException
+    {
+      sendResult_args args = new sendResult_args();
+      args.setSenderIP(senderIP);
+      args.setSenderPort(senderPort);
+      args.setResultFiles(resultFiles);
+      sendBase("sendResult", args);
+    }
+
+    public void recv_sendResult() throws TException
+    {
+      sendResult_result result = new sendResult_result();
+      receiveBase(result, "sendResult");
+      return;
     }
 
   }
@@ -141,33 +159,33 @@ public class NodeService {
       super(protocolFactory, clientManager, transport);
     }
 
-    public void join(String myIp, int myPort, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException {
+    public void join(String requesterIP, int requesterPort, AsyncMethodCallback resultHandler) throws TException {
       checkReady();
-      join_call method_call = new join_call(myIp, myPort, resultHandler, this, ___protocolFactory, ___transport);
+      join_call method_call = new join_call(requesterIP, requesterPort, resultHandler, this, ___protocolFactory, ___transport);
       this.___currentMethod = method_call;
       ___manager.call(method_call);
     }
 
     public static class join_call extends org.apache.thrift.async.TAsyncMethodCall {
-      private String myIp;
-      private int myPort;
-      public join_call(String myIp, int myPort, org.apache.thrift.async.AsyncMethodCallback resultHandler, org.apache.thrift.async.TAsyncClient client, org.apache.thrift.protocol.TProtocolFactory protocolFactory, org.apache.thrift.transport.TNonblockingTransport transport) throws org.apache.thrift.TException {
+      private String requesterIP;
+      private int requesterPort;
+      public join_call(String requesterIP, int requesterPort, AsyncMethodCallback resultHandler, org.apache.thrift.async.TAsyncClient client, org.apache.thrift.protocol.TProtocolFactory protocolFactory, org.apache.thrift.transport.TNonblockingTransport transport) throws TException {
         super(client, protocolFactory, transport, resultHandler, false);
-        this.myIp = myIp;
-        this.myPort = myPort;
+        this.requesterIP = requesterIP;
+        this.requesterPort = requesterPort;
       }
 
-      public void write_args(org.apache.thrift.protocol.TProtocol prot) throws org.apache.thrift.TException {
+      public void write_args(org.apache.thrift.protocol.TProtocol prot) throws TException {
         prot.writeMessageBegin(new org.apache.thrift.protocol.TMessage("join", org.apache.thrift.protocol.TMessageType.CALL, 0));
         join_args args = new join_args();
-        args.setMyIp(myIp);
-        args.setMyPort(myPort);
+        args.setRequesterIP(requesterIP);
+        args.setRequesterPort(requesterPort);
         args.write(prot);
         prot.writeMessageEnd();
       }
 
-      public String getResult() throws org.apache.thrift.TException {
-        if (getState() != org.apache.thrift.async.TAsyncMethodCall.State.RESPONSE_READ) {
+      public String getResult() throws TException {
+        if (getState() != State.RESPONSE_READ) {
           throw new IllegalStateException("Method call not finished!");
         }
         org.apache.thrift.transport.TMemoryInputTransport memoryTransport = new org.apache.thrift.transport.TMemoryInputTransport(getFrameBuffer().array());
@@ -176,44 +194,82 @@ public class NodeService {
       }
     }
 
-    public void search(String keyWord, String requestorIP, String requestorPort, int hops, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException {
+    public void search(String keyWord, String requesterIP, String requesterPort, int hops, AsyncMethodCallback resultHandler) throws TException {
       checkReady();
-      search_call method_call = new search_call(keyWord, requestorIP, requestorPort, hops, resultHandler, this, ___protocolFactory, ___transport);
+      search_call method_call = new search_call(keyWord, requesterIP, requesterPort, hops, resultHandler, this, ___protocolFactory, ___transport);
       this.___currentMethod = method_call;
       ___manager.call(method_call);
     }
 
     public static class search_call extends org.apache.thrift.async.TAsyncMethodCall {
       private String keyWord;
-      private String requestorIP;
-      private String requestorPort;
+      private String requesterIP;
+      private String requesterPort;
       private int hops;
-      public search_call(String keyWord, String requestorIP, String requestorPort, int hops, org.apache.thrift.async.AsyncMethodCallback resultHandler, org.apache.thrift.async.TAsyncClient client, org.apache.thrift.protocol.TProtocolFactory protocolFactory, org.apache.thrift.transport.TNonblockingTransport transport) throws org.apache.thrift.TException {
+      public search_call(String keyWord, String requesterIP, String requesterPort, int hops, AsyncMethodCallback resultHandler, org.apache.thrift.async.TAsyncClient client, org.apache.thrift.protocol.TProtocolFactory protocolFactory, org.apache.thrift.transport.TNonblockingTransport transport) throws TException {
         super(client, protocolFactory, transport, resultHandler, false);
         this.keyWord = keyWord;
-        this.requestorIP = requestorIP;
-        this.requestorPort = requestorPort;
+        this.requesterIP = requesterIP;
+        this.requesterPort = requesterPort;
         this.hops = hops;
       }
 
-      public void write_args(org.apache.thrift.protocol.TProtocol prot) throws org.apache.thrift.TException {
+      public void write_args(org.apache.thrift.protocol.TProtocol prot) throws TException {
         prot.writeMessageBegin(new org.apache.thrift.protocol.TMessage("search", org.apache.thrift.protocol.TMessageType.CALL, 0));
         search_args args = new search_args();
         args.setKeyWord(keyWord);
-        args.setRequestorIP(requestorIP);
-        args.setRequestorPort(requestorPort);
+        args.setRequesterIP(requesterIP);
+        args.setRequesterPort(requesterPort);
         args.setHops(hops);
         args.write(prot);
         prot.writeMessageEnd();
       }
 
-      public String getResult() throws org.apache.thrift.TException {
-        if (getState() != org.apache.thrift.async.TAsyncMethodCall.State.RESPONSE_READ) {
+      public void getResult() throws TException {
+        if (getState() != State.RESPONSE_READ) {
           throw new IllegalStateException("Method call not finished!");
         }
         org.apache.thrift.transport.TMemoryInputTransport memoryTransport = new org.apache.thrift.transport.TMemoryInputTransport(getFrameBuffer().array());
         org.apache.thrift.protocol.TProtocol prot = client.getProtocolFactory().getProtocol(memoryTransport);
-        return (new Client(prot)).recv_search();
+        (new Client(prot)).recv_search();
+      }
+    }
+
+    public void sendResult(String senderIP, String senderPort, String resultFiles, AsyncMethodCallback resultHandler) throws TException {
+      checkReady();
+      sendResult_call method_call = new sendResult_call(senderIP, senderPort, resultFiles, resultHandler, this, ___protocolFactory, ___transport);
+      this.___currentMethod = method_call;
+      ___manager.call(method_call);
+    }
+
+    public static class sendResult_call extends org.apache.thrift.async.TAsyncMethodCall {
+      private String senderIP;
+      private String senderPort;
+      private String resultFiles;
+      public sendResult_call(String senderIP, String senderPort, String resultFiles, AsyncMethodCallback resultHandler, org.apache.thrift.async.TAsyncClient client, org.apache.thrift.protocol.TProtocolFactory protocolFactory, org.apache.thrift.transport.TNonblockingTransport transport) throws TException {
+        super(client, protocolFactory, transport, resultHandler, false);
+        this.senderIP = senderIP;
+        this.senderPort = senderPort;
+        this.resultFiles = resultFiles;
+      }
+
+      public void write_args(org.apache.thrift.protocol.TProtocol prot) throws TException {
+        prot.writeMessageBegin(new org.apache.thrift.protocol.TMessage("sendResult", org.apache.thrift.protocol.TMessageType.CALL, 0));
+        sendResult_args args = new sendResult_args();
+        args.setSenderIP(senderIP);
+        args.setSenderPort(senderPort);
+        args.setResultFiles(resultFiles);
+        args.write(prot);
+        prot.writeMessageEnd();
+      }
+
+      public void getResult() throws TException {
+        if (getState() != State.RESPONSE_READ) {
+          throw new IllegalStateException("Method call not finished!");
+        }
+        org.apache.thrift.transport.TMemoryInputTransport memoryTransport = new org.apache.thrift.transport.TMemoryInputTransport(getFrameBuffer().array());
+        org.apache.thrift.protocol.TProtocol prot = client.getProtocolFactory().getProtocol(memoryTransport);
+        (new Client(prot)).recv_sendResult();
       }
     }
 
@@ -232,6 +288,7 @@ public class NodeService {
     private static <I extends Iface> Map<String,  org.apache.thrift.ProcessFunction<I, ? extends  org.apache.thrift.TBase>> getProcessMap(Map<String,  org.apache.thrift.ProcessFunction<I, ? extends  org.apache.thrift.TBase>> processMap) {
       processMap.put("join", new join());
       processMap.put("search", new search());
+      processMap.put("sendResult", new sendResult());
       return processMap;
     }
 
@@ -248,9 +305,9 @@ public class NodeService {
         return false;
       }
 
-      public join_result getResult(I iface, join_args args) throws org.apache.thrift.TException {
+      public join_result getResult(I iface, join_args args) throws TException {
         join_result result = new join_result();
-        result.success = iface.join(args.myIp, args.myPort);
+        result.success = iface.join(args.requesterIP, args.requesterPort);
         return result;
       }
     }
@@ -268,9 +325,29 @@ public class NodeService {
         return false;
       }
 
-      public search_result getResult(I iface, search_args args) throws org.apache.thrift.TException {
+      public search_result getResult(I iface, search_args args) throws TException {
         search_result result = new search_result();
-        result.success = iface.search(args.keyWord, args.requestorIP, args.requestorPort, args.hops);
+        iface.search(args.keyWord, args.requesterIP, args.requesterPort, args.hops);
+        return result;
+      }
+    }
+
+    public static class sendResult<I extends Iface> extends org.apache.thrift.ProcessFunction<I, sendResult_args> {
+      public sendResult() {
+        super("sendResult");
+      }
+
+      public sendResult_args getEmptyArgsInstance() {
+        return new sendResult_args();
+      }
+
+      protected boolean isOneway() {
+        return false;
+      }
+
+      public sendResult_result getResult(I iface, sendResult_args args) throws TException {
+        sendResult_result result = new sendResult_result();
+        iface.sendResult(args.senderIP, args.senderPort, args.resultFiles);
         return result;
       }
     }
@@ -290,6 +367,7 @@ public class NodeService {
     private static <I extends AsyncIface> Map<String,  org.apache.thrift.AsyncProcessFunction<I, ? extends  org.apache.thrift.TBase,?>> getProcessMap(Map<String,  org.apache.thrift.AsyncProcessFunction<I, ? extends  org.apache.thrift.TBase, ?>> processMap) {
       processMap.put("join", new join());
       processMap.put("search", new search());
+      processMap.put("sendResult", new sendResult());
       return processMap;
     }
 
@@ -339,12 +417,12 @@ public class NodeService {
         return false;
       }
 
-      public void start(I iface, join_args args, org.apache.thrift.async.AsyncMethodCallback<String> resultHandler) throws TException {
-        iface.join(args.myIp, args.myPort,resultHandler);
+      public void start(I iface, join_args args, AsyncMethodCallback<String> resultHandler) throws TException {
+        iface.join(args.requesterIP, args.requesterPort,resultHandler);
       }
     }
 
-    public static class search<I extends AsyncIface> extends org.apache.thrift.AsyncProcessFunction<I, search_args, String> {
+    public static class search<I extends AsyncIface> extends org.apache.thrift.AsyncProcessFunction<I, search_args, Void> {
       public search() {
         super("search");
       }
@@ -353,12 +431,11 @@ public class NodeService {
         return new search_args();
       }
 
-      public AsyncMethodCallback<String> getResultHandler(final AsyncFrameBuffer fb, final int seqid) {
+      public AsyncMethodCallback<Void> getResultHandler(final AsyncFrameBuffer fb, final int seqid) {
         final org.apache.thrift.AsyncProcessFunction fcall = this;
-        return new AsyncMethodCallback<String>() { 
-          public void onComplete(String o) {
+        return new AsyncMethodCallback<Void>() { 
+          public void onComplete(Void o) {
             search_result result = new search_result();
-            result.success = o;
             try {
               fcall.sendResponse(fb,result, org.apache.thrift.protocol.TMessageType.REPLY,seqid);
               return;
@@ -390,8 +467,58 @@ public class NodeService {
         return false;
       }
 
-      public void start(I iface, search_args args, org.apache.thrift.async.AsyncMethodCallback<String> resultHandler) throws TException {
-        iface.search(args.keyWord, args.requestorIP, args.requestorPort, args.hops,resultHandler);
+      public void start(I iface, search_args args, AsyncMethodCallback<Void> resultHandler) throws TException {
+        iface.search(args.keyWord, args.requesterIP, args.requesterPort, args.hops,resultHandler);
+      }
+    }
+
+    public static class sendResult<I extends AsyncIface> extends org.apache.thrift.AsyncProcessFunction<I, sendResult_args, Void> {
+      public sendResult() {
+        super("sendResult");
+      }
+
+      public sendResult_args getEmptyArgsInstance() {
+        return new sendResult_args();
+      }
+
+      public AsyncMethodCallback<Void> getResultHandler(final AsyncFrameBuffer fb, final int seqid) {
+        final org.apache.thrift.AsyncProcessFunction fcall = this;
+        return new AsyncMethodCallback<Void>() { 
+          public void onComplete(Void o) {
+            sendResult_result result = new sendResult_result();
+            try {
+              fcall.sendResponse(fb,result, org.apache.thrift.protocol.TMessageType.REPLY,seqid);
+              return;
+            } catch (Exception e) {
+              LOGGER.error("Exception writing to internal frame buffer", e);
+            }
+            fb.close();
+          }
+          public void onError(Exception e) {
+            byte msgType = org.apache.thrift.protocol.TMessageType.REPLY;
+            org.apache.thrift.TBase msg;
+            sendResult_result result = new sendResult_result();
+            {
+              msgType = org.apache.thrift.protocol.TMessageType.EXCEPTION;
+              msg = (org.apache.thrift.TBase)new org.apache.thrift.TApplicationException(org.apache.thrift.TApplicationException.INTERNAL_ERROR, e.getMessage());
+            }
+            try {
+              fcall.sendResponse(fb,msg,msgType,seqid);
+              return;
+            } catch (Exception ex) {
+              LOGGER.error("Exception writing to internal frame buffer", ex);
+            }
+            fb.close();
+          }
+        };
+      }
+
+      protected boolean isOneway() {
+        return false;
+      }
+
+      public void start(I iface, sendResult_args args, AsyncMethodCallback<Void> resultHandler) throws TException {
+        iface.sendResult(args.senderIP, args.senderPort, args.resultFiles,resultHandler);
       }
     }
 
@@ -400,8 +527,8 @@ public class NodeService {
   public static class join_args implements org.apache.thrift.TBase<join_args, join_args._Fields>, java.io.Serializable, Cloneable, Comparable<join_args>   {
     private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("join_args");
 
-    private static final org.apache.thrift.protocol.TField MY_IP_FIELD_DESC = new org.apache.thrift.protocol.TField("myIp", org.apache.thrift.protocol.TType.STRING, (short)1);
-    private static final org.apache.thrift.protocol.TField MY_PORT_FIELD_DESC = new org.apache.thrift.protocol.TField("myPort", org.apache.thrift.protocol.TType.I32, (short)2);
+    private static final org.apache.thrift.protocol.TField REQUESTER_IP_FIELD_DESC = new org.apache.thrift.protocol.TField("requesterIP", org.apache.thrift.protocol.TType.STRING, (short)1);
+    private static final org.apache.thrift.protocol.TField REQUESTER_PORT_FIELD_DESC = new org.apache.thrift.protocol.TField("requesterPort", org.apache.thrift.protocol.TType.I32, (short)2);
 
     private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
     static {
@@ -409,13 +536,13 @@ public class NodeService {
       schemes.put(TupleScheme.class, new join_argsTupleSchemeFactory());
     }
 
-    public String myIp; // required
-    public int myPort; // required
+    public String requesterIP; // required
+    public int requesterPort; // required
 
     /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
     public enum _Fields implements org.apache.thrift.TFieldIdEnum {
-      MY_IP((short)1, "myIp"),
-      MY_PORT((short)2, "myPort");
+      REQUESTER_IP((short)1, "requesterIP"),
+      REQUESTER_PORT((short)2, "requesterPort");
 
       private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -430,10 +557,10 @@ public class NodeService {
        */
       public static _Fields findByThriftId(int fieldId) {
         switch(fieldId) {
-          case 1: // MY_IP
-            return MY_IP;
-          case 2: // MY_PORT
-            return MY_PORT;
+          case 1: // REQUESTER_IP
+            return REQUESTER_IP;
+          case 2: // REQUESTER_PORT
+            return REQUESTER_PORT;
           default:
             return null;
         }
@@ -474,14 +601,14 @@ public class NodeService {
     }
 
     // isset id assignments
-    private static final int __MYPORT_ISSET_ID = 0;
+    private static final int __REQUESTERPORT_ISSET_ID = 0;
     private byte __isset_bitfield = 0;
     public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
     static {
       Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
-      tmpMap.put(_Fields.MY_IP, new org.apache.thrift.meta_data.FieldMetaData("myIp", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+      tmpMap.put(_Fields.REQUESTER_IP, new org.apache.thrift.meta_data.FieldMetaData("requesterIP", org.apache.thrift.TFieldRequirementType.DEFAULT, 
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING          , "String")));
-      tmpMap.put(_Fields.MY_PORT, new org.apache.thrift.meta_data.FieldMetaData("myPort", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+      tmpMap.put(_Fields.REQUESTER_PORT, new org.apache.thrift.meta_data.FieldMetaData("requesterPort", org.apache.thrift.TFieldRequirementType.DEFAULT, 
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32          , "int")));
       metaDataMap = Collections.unmodifiableMap(tmpMap);
       org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(join_args.class, metaDataMap);
@@ -491,13 +618,13 @@ public class NodeService {
     }
 
     public join_args(
-      String myIp,
-      int myPort)
+      String requesterIP,
+      int requesterPort)
     {
       this();
-      this.myIp = myIp;
-      this.myPort = myPort;
-      setMyPortIsSet(true);
+      this.requesterIP = requesterIP;
+      this.requesterPort = requesterPort;
+      setRequesterPortIsSet(true);
     }
 
     /**
@@ -505,10 +632,10 @@ public class NodeService {
      */
     public join_args(join_args other) {
       __isset_bitfield = other.__isset_bitfield;
-      if (other.isSetMyIp()) {
-        this.myIp = other.myIp;
+      if (other.isSetRequesterIP()) {
+        this.requesterIP = other.requesterIP;
       }
-      this.myPort = other.myPort;
+      this.requesterPort = other.requesterPort;
     }
 
     public join_args deepCopy() {
@@ -517,73 +644,73 @@ public class NodeService {
 
     @Override
     public void clear() {
-      this.myIp = null;
-      setMyPortIsSet(false);
-      this.myPort = 0;
+      this.requesterIP = null;
+      setRequesterPortIsSet(false);
+      this.requesterPort = 0;
     }
 
-    public String getMyIp() {
-      return this.myIp;
+    public String getRequesterIP() {
+      return this.requesterIP;
     }
 
-    public join_args setMyIp(String myIp) {
-      this.myIp = myIp;
+    public join_args setRequesterIP(String requesterIP) {
+      this.requesterIP = requesterIP;
       return this;
     }
 
-    public void unsetMyIp() {
-      this.myIp = null;
+    public void unsetRequesterIP() {
+      this.requesterIP = null;
     }
 
-    /** Returns true if field myIp is set (has been assigned a value) and false otherwise */
-    public boolean isSetMyIp() {
-      return this.myIp != null;
+    /** Returns true if field requesterIP is set (has been assigned a value) and false otherwise */
+    public boolean isSetRequesterIP() {
+      return this.requesterIP != null;
     }
 
-    public void setMyIpIsSet(boolean value) {
+    public void setRequesterIPIsSet(boolean value) {
       if (!value) {
-        this.myIp = null;
+        this.requesterIP = null;
       }
     }
 
-    public int getMyPort() {
-      return this.myPort;
+    public int getRequesterPort() {
+      return this.requesterPort;
     }
 
-    public join_args setMyPort(int myPort) {
-      this.myPort = myPort;
-      setMyPortIsSet(true);
+    public join_args setRequesterPort(int requesterPort) {
+      this.requesterPort = requesterPort;
+      setRequesterPortIsSet(true);
       return this;
     }
 
-    public void unsetMyPort() {
-      __isset_bitfield = EncodingUtils.clearBit(__isset_bitfield, __MYPORT_ISSET_ID);
+    public void unsetRequesterPort() {
+      __isset_bitfield = EncodingUtils.clearBit(__isset_bitfield, __REQUESTERPORT_ISSET_ID);
     }
 
-    /** Returns true if field myPort is set (has been assigned a value) and false otherwise */
-    public boolean isSetMyPort() {
-      return EncodingUtils.testBit(__isset_bitfield, __MYPORT_ISSET_ID);
+    /** Returns true if field requesterPort is set (has been assigned a value) and false otherwise */
+    public boolean isSetRequesterPort() {
+      return EncodingUtils.testBit(__isset_bitfield, __REQUESTERPORT_ISSET_ID);
     }
 
-    public void setMyPortIsSet(boolean value) {
-      __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __MYPORT_ISSET_ID, value);
+    public void setRequesterPortIsSet(boolean value) {
+      __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __REQUESTERPORT_ISSET_ID, value);
     }
 
     public void setFieldValue(_Fields field, Object value) {
       switch (field) {
-      case MY_IP:
+      case REQUESTER_IP:
         if (value == null) {
-          unsetMyIp();
+          unsetRequesterIP();
         } else {
-          setMyIp((String)value);
+          setRequesterIP((String)value);
         }
         break;
 
-      case MY_PORT:
+      case REQUESTER_PORT:
         if (value == null) {
-          unsetMyPort();
+          unsetRequesterPort();
         } else {
-          setMyPort((Integer)value);
+          setRequesterPort((Integer)value);
         }
         break;
 
@@ -592,11 +719,11 @@ public class NodeService {
 
     public Object getFieldValue(_Fields field) {
       switch (field) {
-      case MY_IP:
-        return getMyIp();
+      case REQUESTER_IP:
+        return getRequesterIP();
 
-      case MY_PORT:
-        return getMyPort();
+      case REQUESTER_PORT:
+        return getRequesterPort();
 
       }
       throw new IllegalStateException();
@@ -609,10 +736,10 @@ public class NodeService {
       }
 
       switch (field) {
-      case MY_IP:
-        return isSetMyIp();
-      case MY_PORT:
-        return isSetMyPort();
+      case REQUESTER_IP:
+        return isSetRequesterIP();
+      case REQUESTER_PORT:
+        return isSetRequesterPort();
       }
       throw new IllegalStateException();
     }
@@ -630,21 +757,21 @@ public class NodeService {
       if (that == null)
         return false;
 
-      boolean this_present_myIp = true && this.isSetMyIp();
-      boolean that_present_myIp = true && that.isSetMyIp();
-      if (this_present_myIp || that_present_myIp) {
-        if (!(this_present_myIp && that_present_myIp))
+      boolean this_present_requesterIP = true && this.isSetRequesterIP();
+      boolean that_present_requesterIP = true && that.isSetRequesterIP();
+      if (this_present_requesterIP || that_present_requesterIP) {
+        if (!(this_present_requesterIP && that_present_requesterIP))
           return false;
-        if (!this.myIp.equals(that.myIp))
+        if (!this.requesterIP.equals(that.requesterIP))
           return false;
       }
 
-      boolean this_present_myPort = true;
-      boolean that_present_myPort = true;
-      if (this_present_myPort || that_present_myPort) {
-        if (!(this_present_myPort && that_present_myPort))
+      boolean this_present_requesterPort = true;
+      boolean that_present_requesterPort = true;
+      if (this_present_requesterPort || that_present_requesterPort) {
+        if (!(this_present_requesterPort && that_present_requesterPort))
           return false;
-        if (this.myPort != that.myPort)
+        if (this.requesterPort != that.requesterPort)
           return false;
       }
 
@@ -655,15 +782,15 @@ public class NodeService {
     public int hashCode() {
       List<Object> list = new ArrayList<Object>();
 
-      boolean present_myIp = true && (isSetMyIp());
-      list.add(present_myIp);
-      if (present_myIp)
-        list.add(myIp);
+      boolean present_requesterIP = true && (isSetRequesterIP());
+      list.add(present_requesterIP);
+      if (present_requesterIP)
+        list.add(requesterIP);
 
-      boolean present_myPort = true;
-      list.add(present_myPort);
-      if (present_myPort)
-        list.add(myPort);
+      boolean present_requesterPort = true;
+      list.add(present_requesterPort);
+      if (present_requesterPort)
+        list.add(requesterPort);
 
       return list.hashCode();
     }
@@ -676,22 +803,22 @@ public class NodeService {
 
       int lastComparison = 0;
 
-      lastComparison = Boolean.valueOf(isSetMyIp()).compareTo(other.isSetMyIp());
+      lastComparison = Boolean.valueOf(isSetRequesterIP()).compareTo(other.isSetRequesterIP());
       if (lastComparison != 0) {
         return lastComparison;
       }
-      if (isSetMyIp()) {
-        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.myIp, other.myIp);
+      if (isSetRequesterIP()) {
+        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.requesterIP, other.requesterIP);
         if (lastComparison != 0) {
           return lastComparison;
         }
       }
-      lastComparison = Boolean.valueOf(isSetMyPort()).compareTo(other.isSetMyPort());
+      lastComparison = Boolean.valueOf(isSetRequesterPort()).compareTo(other.isSetRequesterPort());
       if (lastComparison != 0) {
         return lastComparison;
       }
-      if (isSetMyPort()) {
-        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.myPort, other.myPort);
+      if (isSetRequesterPort()) {
+        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.requesterPort, other.requesterPort);
         if (lastComparison != 0) {
           return lastComparison;
         }
@@ -703,11 +830,11 @@ public class NodeService {
       return _Fields.findByThriftId(fieldId);
     }
 
-    public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
+    public void read(org.apache.thrift.protocol.TProtocol iprot) throws TException {
       schemes.get(iprot.getScheme()).getScheme().read(iprot, this);
     }
 
-    public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
+    public void write(org.apache.thrift.protocol.TProtocol oprot) throws TException {
       schemes.get(oprot.getScheme()).getScheme().write(oprot, this);
     }
 
@@ -716,22 +843,22 @@ public class NodeService {
       StringBuilder sb = new StringBuilder("join_args(");
       boolean first = true;
 
-      sb.append("myIp:");
-      if (this.myIp == null) {
+      sb.append("requesterIP:");
+      if (this.requesterIP == null) {
         sb.append("null");
       } else {
-        sb.append(this.myIp);
+        sb.append(this.requesterIP);
       }
       first = false;
       if (!first) sb.append(", ");
-      sb.append("myPort:");
-      sb.append(this.myPort);
+      sb.append("requesterPort:");
+      sb.append(this.requesterPort);
       first = false;
       sb.append(")");
       return sb.toString();
     }
 
-    public void validate() throws org.apache.thrift.TException {
+    public void validate() throws TException {
       // check for required fields
       // check for sub-struct validity
     }
@@ -739,7 +866,7 @@ public class NodeService {
     private void writeObject(java.io.ObjectOutputStream out) throws java.io.IOException {
       try {
         write(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(out)));
-      } catch (org.apache.thrift.TException te) {
+      } catch (TException te) {
         throw new java.io.IOException(te);
       }
     }
@@ -749,7 +876,7 @@ public class NodeService {
         // it doesn't seem like you should have to do this, but java serialization is wacky, and doesn't call the default constructor.
         __isset_bitfield = 0;
         read(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(in)));
-      } catch (org.apache.thrift.TException te) {
+      } catch (TException te) {
         throw new java.io.IOException(te);
       }
     }
@@ -762,7 +889,7 @@ public class NodeService {
 
     private static class join_argsStandardScheme extends StandardScheme<join_args> {
 
-      public void read(org.apache.thrift.protocol.TProtocol iprot, join_args struct) throws org.apache.thrift.TException {
+      public void read(org.apache.thrift.protocol.TProtocol iprot, join_args struct) throws TException {
         org.apache.thrift.protocol.TField schemeField;
         iprot.readStructBegin();
         while (true)
@@ -772,18 +899,18 @@ public class NodeService {
             break;
           }
           switch (schemeField.id) {
-            case 1: // MY_IP
+            case 1: // REQUESTER_IP
               if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
-                struct.myIp = iprot.readString();
-                struct.setMyIpIsSet(true);
+                struct.requesterIP = iprot.readString();
+                struct.setRequesterIPIsSet(true);
               } else { 
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
-            case 2: // MY_PORT
+            case 2: // REQUESTER_PORT
               if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
-                struct.myPort = iprot.readI32();
-                struct.setMyPortIsSet(true);
+                struct.requesterPort = iprot.readI32();
+                struct.setRequesterPortIsSet(true);
               } else { 
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
@@ -799,17 +926,17 @@ public class NodeService {
         struct.validate();
       }
 
-      public void write(org.apache.thrift.protocol.TProtocol oprot, join_args struct) throws org.apache.thrift.TException {
+      public void write(org.apache.thrift.protocol.TProtocol oprot, join_args struct) throws TException {
         struct.validate();
 
         oprot.writeStructBegin(STRUCT_DESC);
-        if (struct.myIp != null) {
-          oprot.writeFieldBegin(MY_IP_FIELD_DESC);
-          oprot.writeString(struct.myIp);
+        if (struct.requesterIP != null) {
+          oprot.writeFieldBegin(REQUESTER_IP_FIELD_DESC);
+          oprot.writeString(struct.requesterIP);
           oprot.writeFieldEnd();
         }
-        oprot.writeFieldBegin(MY_PORT_FIELD_DESC);
-        oprot.writeI32(struct.myPort);
+        oprot.writeFieldBegin(REQUESTER_PORT_FIELD_DESC);
+        oprot.writeI32(struct.requesterPort);
         oprot.writeFieldEnd();
         oprot.writeFieldStop();
         oprot.writeStructEnd();
@@ -826,35 +953,35 @@ public class NodeService {
     private static class join_argsTupleScheme extends TupleScheme<join_args> {
 
       @Override
-      public void write(org.apache.thrift.protocol.TProtocol prot, join_args struct) throws org.apache.thrift.TException {
+      public void write(org.apache.thrift.protocol.TProtocol prot, join_args struct) throws TException {
         TTupleProtocol oprot = (TTupleProtocol) prot;
         BitSet optionals = new BitSet();
-        if (struct.isSetMyIp()) {
+        if (struct.isSetRequesterIP()) {
           optionals.set(0);
         }
-        if (struct.isSetMyPort()) {
+        if (struct.isSetRequesterPort()) {
           optionals.set(1);
         }
         oprot.writeBitSet(optionals, 2);
-        if (struct.isSetMyIp()) {
-          oprot.writeString(struct.myIp);
+        if (struct.isSetRequesterIP()) {
+          oprot.writeString(struct.requesterIP);
         }
-        if (struct.isSetMyPort()) {
-          oprot.writeI32(struct.myPort);
+        if (struct.isSetRequesterPort()) {
+          oprot.writeI32(struct.requesterPort);
         }
       }
 
       @Override
-      public void read(org.apache.thrift.protocol.TProtocol prot, join_args struct) throws org.apache.thrift.TException {
+      public void read(org.apache.thrift.protocol.TProtocol prot, join_args struct) throws TException {
         TTupleProtocol iprot = (TTupleProtocol) prot;
         BitSet incoming = iprot.readBitSet(2);
         if (incoming.get(0)) {
-          struct.myIp = iprot.readString();
-          struct.setMyIpIsSet(true);
+          struct.requesterIP = iprot.readString();
+          struct.setRequesterIPIsSet(true);
         }
         if (incoming.get(1)) {
-          struct.myPort = iprot.readI32();
-          struct.setMyPortIsSet(true);
+          struct.requesterPort = iprot.readI32();
+          struct.setRequesterPortIsSet(true);
         }
       }
     }
@@ -1091,11 +1218,11 @@ public class NodeService {
       return _Fields.findByThriftId(fieldId);
     }
 
-    public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
+    public void read(org.apache.thrift.protocol.TProtocol iprot) throws TException {
       schemes.get(iprot.getScheme()).getScheme().read(iprot, this);
     }
 
-    public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
+    public void write(org.apache.thrift.protocol.TProtocol oprot) throws TException {
       schemes.get(oprot.getScheme()).getScheme().write(oprot, this);
       }
 
@@ -1115,7 +1242,7 @@ public class NodeService {
       return sb.toString();
     }
 
-    public void validate() throws org.apache.thrift.TException {
+    public void validate() throws TException {
       // check for required fields
       // check for sub-struct validity
     }
@@ -1123,7 +1250,7 @@ public class NodeService {
     private void writeObject(java.io.ObjectOutputStream out) throws java.io.IOException {
       try {
         write(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(out)));
-      } catch (org.apache.thrift.TException te) {
+      } catch (TException te) {
         throw new java.io.IOException(te);
       }
     }
@@ -1131,7 +1258,7 @@ public class NodeService {
     private void readObject(java.io.ObjectInputStream in) throws java.io.IOException, ClassNotFoundException {
       try {
         read(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(in)));
-      } catch (org.apache.thrift.TException te) {
+      } catch (TException te) {
         throw new java.io.IOException(te);
       }
     }
@@ -1144,7 +1271,7 @@ public class NodeService {
 
     private static class join_resultStandardScheme extends StandardScheme<join_result> {
 
-      public void read(org.apache.thrift.protocol.TProtocol iprot, join_result struct) throws org.apache.thrift.TException {
+      public void read(org.apache.thrift.protocol.TProtocol iprot, join_result struct) throws TException {
         org.apache.thrift.protocol.TField schemeField;
         iprot.readStructBegin();
         while (true)
@@ -1173,7 +1300,7 @@ public class NodeService {
         struct.validate();
       }
 
-      public void write(org.apache.thrift.protocol.TProtocol oprot, join_result struct) throws org.apache.thrift.TException {
+      public void write(org.apache.thrift.protocol.TProtocol oprot, join_result struct) throws TException {
         struct.validate();
 
         oprot.writeStructBegin(STRUCT_DESC);
@@ -1197,7 +1324,7 @@ public class NodeService {
     private static class join_resultTupleScheme extends TupleScheme<join_result> {
 
       @Override
-      public void write(org.apache.thrift.protocol.TProtocol prot, join_result struct) throws org.apache.thrift.TException {
+      public void write(org.apache.thrift.protocol.TProtocol prot, join_result struct) throws TException {
         TTupleProtocol oprot = (TTupleProtocol) prot;
         BitSet optionals = new BitSet();
         if (struct.isSetSuccess()) {
@@ -1210,7 +1337,7 @@ public class NodeService {
       }
 
       @Override
-      public void read(org.apache.thrift.protocol.TProtocol prot, join_result struct) throws org.apache.thrift.TException {
+      public void read(org.apache.thrift.protocol.TProtocol prot, join_result struct) throws TException {
         TTupleProtocol iprot = (TTupleProtocol) prot;
         BitSet incoming = iprot.readBitSet(1);
         if (incoming.get(0)) {
@@ -1226,8 +1353,8 @@ public class NodeService {
     private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("search_args");
 
     private static final org.apache.thrift.protocol.TField KEY_WORD_FIELD_DESC = new org.apache.thrift.protocol.TField("keyWord", org.apache.thrift.protocol.TType.STRING, (short)1);
-    private static final org.apache.thrift.protocol.TField REQUESTOR_IP_FIELD_DESC = new org.apache.thrift.protocol.TField("requestorIP", org.apache.thrift.protocol.TType.STRING, (short)2);
-    private static final org.apache.thrift.protocol.TField REQUESTOR_PORT_FIELD_DESC = new org.apache.thrift.protocol.TField("requestorPort", org.apache.thrift.protocol.TType.STRING, (short)3);
+    private static final org.apache.thrift.protocol.TField REQUESTER_IP_FIELD_DESC = new org.apache.thrift.protocol.TField("requesterIP", org.apache.thrift.protocol.TType.STRING, (short)2);
+    private static final org.apache.thrift.protocol.TField REQUESTER_PORT_FIELD_DESC = new org.apache.thrift.protocol.TField("requesterPort", org.apache.thrift.protocol.TType.STRING, (short)3);
     private static final org.apache.thrift.protocol.TField HOPS_FIELD_DESC = new org.apache.thrift.protocol.TField("hops", org.apache.thrift.protocol.TType.I32, (short)4);
 
     private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
@@ -1237,15 +1364,15 @@ public class NodeService {
     }
 
     public String keyWord; // required
-    public String requestorIP; // required
-    public String requestorPort; // required
+    public String requesterIP; // required
+    public String requesterPort; // required
     public int hops; // required
 
     /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
     public enum _Fields implements org.apache.thrift.TFieldIdEnum {
       KEY_WORD((short)1, "keyWord"),
-      REQUESTOR_IP((short)2, "requestorIP"),
-      REQUESTOR_PORT((short)3, "requestorPort"),
+      REQUESTER_IP((short)2, "requesterIP"),
+      REQUESTER_PORT((short)3, "requesterPort"),
       HOPS((short)4, "hops");
 
       private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
@@ -1263,10 +1390,10 @@ public class NodeService {
         switch(fieldId) {
           case 1: // KEY_WORD
             return KEY_WORD;
-          case 2: // REQUESTOR_IP
-            return REQUESTOR_IP;
-          case 3: // REQUESTOR_PORT
-            return REQUESTOR_PORT;
+          case 2: // REQUESTER_IP
+            return REQUESTER_IP;
+          case 3: // REQUESTER_PORT
+            return REQUESTER_PORT;
           case 4: // HOPS
             return HOPS;
           default:
@@ -1316,9 +1443,9 @@ public class NodeService {
       Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
       tmpMap.put(_Fields.KEY_WORD, new org.apache.thrift.meta_data.FieldMetaData("keyWord", org.apache.thrift.TFieldRequirementType.DEFAULT, 
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING          , "String")));
-      tmpMap.put(_Fields.REQUESTOR_IP, new org.apache.thrift.meta_data.FieldMetaData("requestorIP", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+      tmpMap.put(_Fields.REQUESTER_IP, new org.apache.thrift.meta_data.FieldMetaData("requesterIP", org.apache.thrift.TFieldRequirementType.DEFAULT, 
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING          , "String")));
-      tmpMap.put(_Fields.REQUESTOR_PORT, new org.apache.thrift.meta_data.FieldMetaData("requestorPort", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+      tmpMap.put(_Fields.REQUESTER_PORT, new org.apache.thrift.meta_data.FieldMetaData("requesterPort", org.apache.thrift.TFieldRequirementType.DEFAULT, 
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING          , "String")));
       tmpMap.put(_Fields.HOPS, new org.apache.thrift.meta_data.FieldMetaData("hops", org.apache.thrift.TFieldRequirementType.DEFAULT, 
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32          , "int")));
@@ -1331,14 +1458,14 @@ public class NodeService {
 
     public search_args(
       String keyWord,
-      String requestorIP,
-      String requestorPort,
+      String requesterIP,
+      String requesterPort,
       int hops)
     {
       this();
       this.keyWord = keyWord;
-      this.requestorIP = requestorIP;
-      this.requestorPort = requestorPort;
+      this.requesterIP = requesterIP;
+      this.requesterPort = requesterPort;
       this.hops = hops;
       setHopsIsSet(true);
     }
@@ -1351,11 +1478,11 @@ public class NodeService {
       if (other.isSetKeyWord()) {
         this.keyWord = other.keyWord;
       }
-      if (other.isSetRequestorIP()) {
-        this.requestorIP = other.requestorIP;
+      if (other.isSetRequesterIP()) {
+        this.requesterIP = other.requesterIP;
       }
-      if (other.isSetRequestorPort()) {
-        this.requestorPort = other.requestorPort;
+      if (other.isSetRequesterPort()) {
+        this.requesterPort = other.requesterPort;
       }
       this.hops = other.hops;
     }
@@ -1367,8 +1494,8 @@ public class NodeService {
     @Override
     public void clear() {
       this.keyWord = null;
-      this.requestorIP = null;
-      this.requestorPort = null;
+      this.requesterIP = null;
+      this.requesterPort = null;
       setHopsIsSet(false);
       this.hops = 0;
     }
@@ -1397,51 +1524,51 @@ public class NodeService {
       }
     }
 
-    public String getRequestorIP() {
-      return this.requestorIP;
+    public String getRequesterIP() {
+      return this.requesterIP;
     }
 
-    public search_args setRequestorIP(String requestorIP) {
-      this.requestorIP = requestorIP;
+    public search_args setRequesterIP(String requesterIP) {
+      this.requesterIP = requesterIP;
       return this;
     }
 
-    public void unsetRequestorIP() {
-      this.requestorIP = null;
+    public void unsetRequesterIP() {
+      this.requesterIP = null;
     }
 
-    /** Returns true if field requestorIP is set (has been assigned a value) and false otherwise */
-    public boolean isSetRequestorIP() {
-      return this.requestorIP != null;
+    /** Returns true if field requesterIP is set (has been assigned a value) and false otherwise */
+    public boolean isSetRequesterIP() {
+      return this.requesterIP != null;
     }
 
-    public void setRequestorIPIsSet(boolean value) {
+    public void setRequesterIPIsSet(boolean value) {
       if (!value) {
-        this.requestorIP = null;
+        this.requesterIP = null;
       }
     }
 
-    public String getRequestorPort() {
-      return this.requestorPort;
+    public String getRequesterPort() {
+      return this.requesterPort;
     }
 
-    public search_args setRequestorPort(String requestorPort) {
-      this.requestorPort = requestorPort;
+    public search_args setRequesterPort(String requesterPort) {
+      this.requesterPort = requesterPort;
       return this;
     }
 
-    public void unsetRequestorPort() {
-      this.requestorPort = null;
+    public void unsetRequesterPort() {
+      this.requesterPort = null;
     }
 
-    /** Returns true if field requestorPort is set (has been assigned a value) and false otherwise */
-    public boolean isSetRequestorPort() {
-      return this.requestorPort != null;
+    /** Returns true if field requesterPort is set (has been assigned a value) and false otherwise */
+    public boolean isSetRequesterPort() {
+      return this.requesterPort != null;
     }
 
-    public void setRequestorPortIsSet(boolean value) {
+    public void setRequesterPortIsSet(boolean value) {
       if (!value) {
-        this.requestorPort = null;
+        this.requesterPort = null;
       }
     }
 
@@ -1478,19 +1605,19 @@ public class NodeService {
         }
         break;
 
-      case REQUESTOR_IP:
+      case REQUESTER_IP:
         if (value == null) {
-          unsetRequestorIP();
+          unsetRequesterIP();
         } else {
-          setRequestorIP((String)value);
+          setRequesterIP((String)value);
         }
         break;
 
-      case REQUESTOR_PORT:
+      case REQUESTER_PORT:
         if (value == null) {
-          unsetRequestorPort();
+          unsetRequesterPort();
         } else {
-          setRequestorPort((String)value);
+          setRequesterPort((String)value);
         }
         break;
 
@@ -1510,11 +1637,11 @@ public class NodeService {
       case KEY_WORD:
         return getKeyWord();
 
-      case REQUESTOR_IP:
-        return getRequestorIP();
+      case REQUESTER_IP:
+        return getRequesterIP();
 
-      case REQUESTOR_PORT:
-        return getRequestorPort();
+      case REQUESTER_PORT:
+        return getRequesterPort();
 
       case HOPS:
         return getHops();
@@ -1532,10 +1659,10 @@ public class NodeService {
       switch (field) {
       case KEY_WORD:
         return isSetKeyWord();
-      case REQUESTOR_IP:
-        return isSetRequestorIP();
-      case REQUESTOR_PORT:
-        return isSetRequestorPort();
+      case REQUESTER_IP:
+        return isSetRequesterIP();
+      case REQUESTER_PORT:
+        return isSetRequesterPort();
       case HOPS:
         return isSetHops();
       }
@@ -1564,21 +1691,21 @@ public class NodeService {
           return false;
       }
 
-      boolean this_present_requestorIP = true && this.isSetRequestorIP();
-      boolean that_present_requestorIP = true && that.isSetRequestorIP();
-      if (this_present_requestorIP || that_present_requestorIP) {
-        if (!(this_present_requestorIP && that_present_requestorIP))
+      boolean this_present_requesterIP = true && this.isSetRequesterIP();
+      boolean that_present_requesterIP = true && that.isSetRequesterIP();
+      if (this_present_requesterIP || that_present_requesterIP) {
+        if (!(this_present_requesterIP && that_present_requesterIP))
           return false;
-        if (!this.requestorIP.equals(that.requestorIP))
+        if (!this.requesterIP.equals(that.requesterIP))
           return false;
       }
 
-      boolean this_present_requestorPort = true && this.isSetRequestorPort();
-      boolean that_present_requestorPort = true && that.isSetRequestorPort();
-      if (this_present_requestorPort || that_present_requestorPort) {
-        if (!(this_present_requestorPort && that_present_requestorPort))
+      boolean this_present_requesterPort = true && this.isSetRequesterPort();
+      boolean that_present_requesterPort = true && that.isSetRequesterPort();
+      if (this_present_requesterPort || that_present_requesterPort) {
+        if (!(this_present_requesterPort && that_present_requesterPort))
           return false;
-        if (!this.requestorPort.equals(that.requestorPort))
+        if (!this.requesterPort.equals(that.requesterPort))
           return false;
       }
 
@@ -1603,15 +1730,15 @@ public class NodeService {
       if (present_keyWord)
         list.add(keyWord);
 
-      boolean present_requestorIP = true && (isSetRequestorIP());
-      list.add(present_requestorIP);
-      if (present_requestorIP)
-        list.add(requestorIP);
+      boolean present_requesterIP = true && (isSetRequesterIP());
+      list.add(present_requesterIP);
+      if (present_requesterIP)
+        list.add(requesterIP);
 
-      boolean present_requestorPort = true && (isSetRequestorPort());
-      list.add(present_requestorPort);
-      if (present_requestorPort)
-        list.add(requestorPort);
+      boolean present_requesterPort = true && (isSetRequesterPort());
+      list.add(present_requesterPort);
+      if (present_requesterPort)
+        list.add(requesterPort);
 
       boolean present_hops = true;
       list.add(present_hops);
@@ -1639,22 +1766,22 @@ public class NodeService {
           return lastComparison;
         }
       }
-      lastComparison = Boolean.valueOf(isSetRequestorIP()).compareTo(other.isSetRequestorIP());
+      lastComparison = Boolean.valueOf(isSetRequesterIP()).compareTo(other.isSetRequesterIP());
       if (lastComparison != 0) {
         return lastComparison;
       }
-      if (isSetRequestorIP()) {
-        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.requestorIP, other.requestorIP);
+      if (isSetRequesterIP()) {
+        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.requesterIP, other.requesterIP);
         if (lastComparison != 0) {
           return lastComparison;
         }
       }
-      lastComparison = Boolean.valueOf(isSetRequestorPort()).compareTo(other.isSetRequestorPort());
+      lastComparison = Boolean.valueOf(isSetRequesterPort()).compareTo(other.isSetRequesterPort());
       if (lastComparison != 0) {
         return lastComparison;
       }
-      if (isSetRequestorPort()) {
-        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.requestorPort, other.requestorPort);
+      if (isSetRequesterPort()) {
+        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.requesterPort, other.requesterPort);
         if (lastComparison != 0) {
           return lastComparison;
         }
@@ -1676,11 +1803,11 @@ public class NodeService {
       return _Fields.findByThriftId(fieldId);
     }
 
-    public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
+    public void read(org.apache.thrift.protocol.TProtocol iprot) throws TException {
       schemes.get(iprot.getScheme()).getScheme().read(iprot, this);
     }
 
-    public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
+    public void write(org.apache.thrift.protocol.TProtocol oprot) throws TException {
       schemes.get(oprot.getScheme()).getScheme().write(oprot, this);
     }
 
@@ -1697,19 +1824,19 @@ public class NodeService {
       }
       first = false;
       if (!first) sb.append(", ");
-      sb.append("requestorIP:");
-      if (this.requestorIP == null) {
+      sb.append("requesterIP:");
+      if (this.requesterIP == null) {
         sb.append("null");
       } else {
-        sb.append(this.requestorIP);
+        sb.append(this.requesterIP);
       }
       first = false;
       if (!first) sb.append(", ");
-      sb.append("requestorPort:");
-      if (this.requestorPort == null) {
+      sb.append("requesterPort:");
+      if (this.requesterPort == null) {
         sb.append("null");
       } else {
-        sb.append(this.requestorPort);
+        sb.append(this.requesterPort);
       }
       first = false;
       if (!first) sb.append(", ");
@@ -1720,7 +1847,7 @@ public class NodeService {
       return sb.toString();
     }
 
-    public void validate() throws org.apache.thrift.TException {
+    public void validate() throws TException {
       // check for required fields
       // check for sub-struct validity
     }
@@ -1728,7 +1855,7 @@ public class NodeService {
     private void writeObject(java.io.ObjectOutputStream out) throws java.io.IOException {
       try {
         write(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(out)));
-      } catch (org.apache.thrift.TException te) {
+      } catch (TException te) {
         throw new java.io.IOException(te);
       }
     }
@@ -1738,7 +1865,7 @@ public class NodeService {
         // it doesn't seem like you should have to do this, but java serialization is wacky, and doesn't call the default constructor.
         __isset_bitfield = 0;
         read(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(in)));
-      } catch (org.apache.thrift.TException te) {
+      } catch (TException te) {
         throw new java.io.IOException(te);
       }
     }
@@ -1751,7 +1878,7 @@ public class NodeService {
 
     private static class search_argsStandardScheme extends StandardScheme<search_args> {
 
-      public void read(org.apache.thrift.protocol.TProtocol iprot, search_args struct) throws org.apache.thrift.TException {
+      public void read(org.apache.thrift.protocol.TProtocol iprot, search_args struct) throws TException {
         org.apache.thrift.protocol.TField schemeField;
         iprot.readStructBegin();
         while (true)
@@ -1769,18 +1896,18 @@ public class NodeService {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
-            case 2: // REQUESTOR_IP
+            case 2: // REQUESTER_IP
               if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
-                struct.requestorIP = iprot.readString();
-                struct.setRequestorIPIsSet(true);
+                struct.requesterIP = iprot.readString();
+                struct.setRequesterIPIsSet(true);
               } else { 
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
-            case 3: // REQUESTOR_PORT
+            case 3: // REQUESTER_PORT
               if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
-                struct.requestorPort = iprot.readString();
-                struct.setRequestorPortIsSet(true);
+                struct.requesterPort = iprot.readString();
+                struct.setRequesterPortIsSet(true);
               } else { 
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
@@ -1804,7 +1931,7 @@ public class NodeService {
         struct.validate();
       }
 
-      public void write(org.apache.thrift.protocol.TProtocol oprot, search_args struct) throws org.apache.thrift.TException {
+      public void write(org.apache.thrift.protocol.TProtocol oprot, search_args struct) throws TException {
         struct.validate();
 
         oprot.writeStructBegin(STRUCT_DESC);
@@ -1813,14 +1940,14 @@ public class NodeService {
           oprot.writeString(struct.keyWord);
           oprot.writeFieldEnd();
         }
-        if (struct.requestorIP != null) {
-          oprot.writeFieldBegin(REQUESTOR_IP_FIELD_DESC);
-          oprot.writeString(struct.requestorIP);
+        if (struct.requesterIP != null) {
+          oprot.writeFieldBegin(REQUESTER_IP_FIELD_DESC);
+          oprot.writeString(struct.requesterIP);
           oprot.writeFieldEnd();
         }
-        if (struct.requestorPort != null) {
-          oprot.writeFieldBegin(REQUESTOR_PORT_FIELD_DESC);
-          oprot.writeString(struct.requestorPort);
+        if (struct.requesterPort != null) {
+          oprot.writeFieldBegin(REQUESTER_PORT_FIELD_DESC);
+          oprot.writeString(struct.requesterPort);
           oprot.writeFieldEnd();
         }
         oprot.writeFieldBegin(HOPS_FIELD_DESC);
@@ -1841,16 +1968,16 @@ public class NodeService {
     private static class search_argsTupleScheme extends TupleScheme<search_args> {
 
       @Override
-      public void write(org.apache.thrift.protocol.TProtocol prot, search_args struct) throws org.apache.thrift.TException {
+      public void write(org.apache.thrift.protocol.TProtocol prot, search_args struct) throws TException {
         TTupleProtocol oprot = (TTupleProtocol) prot;
         BitSet optionals = new BitSet();
         if (struct.isSetKeyWord()) {
           optionals.set(0);
         }
-        if (struct.isSetRequestorIP()) {
+        if (struct.isSetRequesterIP()) {
           optionals.set(1);
         }
-        if (struct.isSetRequestorPort()) {
+        if (struct.isSetRequesterPort()) {
           optionals.set(2);
         }
         if (struct.isSetHops()) {
@@ -1860,11 +1987,11 @@ public class NodeService {
         if (struct.isSetKeyWord()) {
           oprot.writeString(struct.keyWord);
         }
-        if (struct.isSetRequestorIP()) {
-          oprot.writeString(struct.requestorIP);
+        if (struct.isSetRequesterIP()) {
+          oprot.writeString(struct.requesterIP);
         }
-        if (struct.isSetRequestorPort()) {
-          oprot.writeString(struct.requestorPort);
+        if (struct.isSetRequesterPort()) {
+          oprot.writeString(struct.requesterPort);
         }
         if (struct.isSetHops()) {
           oprot.writeI32(struct.hops);
@@ -1872,7 +1999,7 @@ public class NodeService {
       }
 
       @Override
-      public void read(org.apache.thrift.protocol.TProtocol prot, search_args struct) throws org.apache.thrift.TException {
+      public void read(org.apache.thrift.protocol.TProtocol prot, search_args struct) throws TException {
         TTupleProtocol iprot = (TTupleProtocol) prot;
         BitSet incoming = iprot.readBitSet(4);
         if (incoming.get(0)) {
@@ -1880,12 +2007,12 @@ public class NodeService {
           struct.setKeyWordIsSet(true);
         }
         if (incoming.get(1)) {
-          struct.requestorIP = iprot.readString();
-          struct.setRequestorIPIsSet(true);
+          struct.requesterIP = iprot.readString();
+          struct.setRequesterIPIsSet(true);
         }
         if (incoming.get(2)) {
-          struct.requestorPort = iprot.readString();
-          struct.setRequestorPortIsSet(true);
+          struct.requesterPort = iprot.readString();
+          struct.setRequesterPortIsSet(true);
         }
         if (incoming.get(3)) {
           struct.hops = iprot.readI32();
@@ -1899,7 +2026,6 @@ public class NodeService {
   public static class search_result implements org.apache.thrift.TBase<search_result, search_result._Fields>, java.io.Serializable, Cloneable, Comparable<search_result>   {
     private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("search_result");
 
-    private static final org.apache.thrift.protocol.TField SUCCESS_FIELD_DESC = new org.apache.thrift.protocol.TField("success", org.apache.thrift.protocol.TType.STRING, (short)0);
 
     private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
     static {
@@ -1907,11 +2033,10 @@ public class NodeService {
       schemes.put(TupleScheme.class, new search_resultTupleSchemeFactory());
     }
 
-    public String success; // required
 
     /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
     public enum _Fields implements org.apache.thrift.TFieldIdEnum {
-      SUCCESS((short)0, "success");
+;
 
       private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -1926,8 +2051,268 @@ public class NodeService {
        */
       public static _Fields findByThriftId(int fieldId) {
         switch(fieldId) {
-          case 0: // SUCCESS
-            return SUCCESS;
+          default:
+            return null;
+        }
+      }
+
+      /**
+       * Find the _Fields constant that matches fieldId, throwing an exception
+       * if it is not found.
+       */
+      public static _Fields findByThriftIdOrThrow(int fieldId) {
+        _Fields fields = findByThriftId(fieldId);
+        if (fields == null) throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+        return fields;
+      }
+
+      /**
+       * Find the _Fields constant that matches name, or null if its not found.
+       */
+      public static _Fields findByName(String name) {
+        return byName.get(name);
+      }
+
+      private final short _thriftId;
+      private final String _fieldName;
+
+      _Fields(short thriftId, String fieldName) {
+        _thriftId = thriftId;
+        _fieldName = fieldName;
+      }
+
+      public short getThriftFieldId() {
+        return _thriftId;
+      }
+
+      public String getFieldName() {
+        return _fieldName;
+      }
+    }
+    public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
+    static {
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
+      metaDataMap = Collections.unmodifiableMap(tmpMap);
+      org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(search_result.class, metaDataMap);
+    }
+
+    public search_result() {
+    }
+
+    /**
+     * Performs a deep copy on <i>other</i>.
+     */
+    public search_result(search_result other) {
+    }
+
+    public search_result deepCopy() {
+      return new search_result(this);
+    }
+
+    @Override
+    public void clear() {
+    }
+
+    public void setFieldValue(_Fields field, Object value) {
+      switch (field) {
+      }
+    }
+
+    public Object getFieldValue(_Fields field) {
+      switch (field) {
+      }
+      throw new IllegalStateException();
+    }
+
+    /** Returns true if field corresponding to fieldID is set (has been assigned a value) and false otherwise */
+    public boolean isSet(_Fields field) {
+      if (field == null) {
+        throw new IllegalArgumentException();
+      }
+
+      switch (field) {
+      }
+      throw new IllegalStateException();
+    }
+
+    @Override
+    public boolean equals(Object that) {
+      if (that == null)
+        return false;
+      if (that instanceof search_result)
+        return this.equals((search_result)that);
+      return false;
+    }
+
+    public boolean equals(search_result that) {
+      if (that == null)
+        return false;
+
+      return true;
+    }
+
+    @Override
+    public int hashCode() {
+      List<Object> list = new ArrayList<Object>();
+
+      return list.hashCode();
+    }
+
+    @Override
+    public int compareTo(search_result other) {
+      if (!getClass().equals(other.getClass())) {
+        return getClass().getName().compareTo(other.getClass().getName());
+      }
+
+      int lastComparison = 0;
+
+      return 0;
+    }
+
+    public _Fields fieldForId(int fieldId) {
+      return _Fields.findByThriftId(fieldId);
+    }
+
+    public void read(org.apache.thrift.protocol.TProtocol iprot) throws TException {
+      schemes.get(iprot.getScheme()).getScheme().read(iprot, this);
+    }
+
+    public void write(org.apache.thrift.protocol.TProtocol oprot) throws TException {
+      schemes.get(oprot.getScheme()).getScheme().write(oprot, this);
+      }
+
+    @Override
+    public String toString() {
+      StringBuilder sb = new StringBuilder("search_result(");
+      boolean first = true;
+
+      sb.append(")");
+      return sb.toString();
+    }
+
+    public void validate() throws TException {
+      // check for required fields
+      // check for sub-struct validity
+    }
+
+    private void writeObject(java.io.ObjectOutputStream out) throws java.io.IOException {
+      try {
+        write(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(out)));
+      } catch (TException te) {
+        throw new java.io.IOException(te);
+      }
+    }
+
+    private void readObject(java.io.ObjectInputStream in) throws java.io.IOException, ClassNotFoundException {
+      try {
+        read(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(in)));
+      } catch (TException te) {
+        throw new java.io.IOException(te);
+      }
+    }
+
+    private static class search_resultStandardSchemeFactory implements SchemeFactory {
+      public search_resultStandardScheme getScheme() {
+        return new search_resultStandardScheme();
+      }
+    }
+
+    private static class search_resultStandardScheme extends StandardScheme<search_result> {
+
+      public void read(org.apache.thrift.protocol.TProtocol iprot, search_result struct) throws TException {
+        org.apache.thrift.protocol.TField schemeField;
+        iprot.readStructBegin();
+        while (true)
+        {
+          schemeField = iprot.readFieldBegin();
+          if (schemeField.type == org.apache.thrift.protocol.TType.STOP) { 
+            break;
+          }
+          switch (schemeField.id) {
+            default:
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+          }
+          iprot.readFieldEnd();
+        }
+        iprot.readStructEnd();
+
+        // check for required fields of primitive type, which can't be checked in the validate method
+        struct.validate();
+      }
+
+      public void write(org.apache.thrift.protocol.TProtocol oprot, search_result struct) throws TException {
+        struct.validate();
+
+        oprot.writeStructBegin(STRUCT_DESC);
+        oprot.writeFieldStop();
+        oprot.writeStructEnd();
+      }
+
+    }
+
+    private static class search_resultTupleSchemeFactory implements SchemeFactory {
+      public search_resultTupleScheme getScheme() {
+        return new search_resultTupleScheme();
+      }
+    }
+
+    private static class search_resultTupleScheme extends TupleScheme<search_result> {
+
+      @Override
+      public void write(org.apache.thrift.protocol.TProtocol prot, search_result struct) throws TException {
+        TTupleProtocol oprot = (TTupleProtocol) prot;
+      }
+
+      @Override
+      public void read(org.apache.thrift.protocol.TProtocol prot, search_result struct) throws TException {
+        TTupleProtocol iprot = (TTupleProtocol) prot;
+      }
+    }
+
+  }
+
+  public static class sendResult_args implements org.apache.thrift.TBase<sendResult_args, sendResult_args._Fields>, java.io.Serializable, Cloneable, Comparable<sendResult_args>   {
+    private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("sendResult_args");
+
+    private static final org.apache.thrift.protocol.TField SENDER_IP_FIELD_DESC = new org.apache.thrift.protocol.TField("senderIP", org.apache.thrift.protocol.TType.STRING, (short)1);
+    private static final org.apache.thrift.protocol.TField SENDER_PORT_FIELD_DESC = new org.apache.thrift.protocol.TField("senderPort", org.apache.thrift.protocol.TType.STRING, (short)2);
+    private static final org.apache.thrift.protocol.TField RESULT_FILES_FIELD_DESC = new org.apache.thrift.protocol.TField("resultFiles", org.apache.thrift.protocol.TType.STRING, (short)3);
+
+    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
+    static {
+      schemes.put(StandardScheme.class, new sendResult_argsStandardSchemeFactory());
+      schemes.put(TupleScheme.class, new sendResult_argsTupleSchemeFactory());
+    }
+
+    public String senderIP; // required
+    public String senderPort; // required
+    public String resultFiles; // required
+
+    /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
+    public enum _Fields implements org.apache.thrift.TFieldIdEnum {
+      SENDER_IP((short)1, "senderIP"),
+      SENDER_PORT((short)2, "senderPort"),
+      RESULT_FILES((short)3, "resultFiles");
+
+      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
+
+      static {
+        for (_Fields field : EnumSet.allOf(_Fields.class)) {
+          byName.put(field.getFieldName(), field);
+        }
+      }
+
+      /**
+       * Find the _Fields constant that matches fieldId, or null if its not found.
+       */
+      public static _Fields findByThriftId(int fieldId) {
+        switch(fieldId) {
+          case 1: // SENDER_IP
+            return SENDER_IP;
+          case 2: // SENDER_PORT
+            return SENDER_PORT;
+          case 3: // RESULT_FILES
+            return RESULT_FILES;
           default:
             return null;
         }
@@ -1971,71 +2356,151 @@ public class NodeService {
     public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
     static {
       Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
-      tmpMap.put(_Fields.SUCCESS, new org.apache.thrift.meta_data.FieldMetaData("success", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+      tmpMap.put(_Fields.SENDER_IP, new org.apache.thrift.meta_data.FieldMetaData("senderIP", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+          new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING          , "String")));
+      tmpMap.put(_Fields.SENDER_PORT, new org.apache.thrift.meta_data.FieldMetaData("senderPort", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+          new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING          , "String")));
+      tmpMap.put(_Fields.RESULT_FILES, new org.apache.thrift.meta_data.FieldMetaData("resultFiles", org.apache.thrift.TFieldRequirementType.DEFAULT, 
           new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING          , "String")));
       metaDataMap = Collections.unmodifiableMap(tmpMap);
-      org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(search_result.class, metaDataMap);
+      org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(sendResult_args.class, metaDataMap);
     }
 
-    public search_result() {
+    public sendResult_args() {
     }
 
-    public search_result(
-      String success)
+    public sendResult_args(
+      String senderIP,
+      String senderPort,
+      String resultFiles)
     {
       this();
-      this.success = success;
+      this.senderIP = senderIP;
+      this.senderPort = senderPort;
+      this.resultFiles = resultFiles;
     }
 
     /**
      * Performs a deep copy on <i>other</i>.
      */
-    public search_result(search_result other) {
-      if (other.isSetSuccess()) {
-        this.success = other.success;
+    public sendResult_args(sendResult_args other) {
+      if (other.isSetSenderIP()) {
+        this.senderIP = other.senderIP;
+      }
+      if (other.isSetSenderPort()) {
+        this.senderPort = other.senderPort;
+      }
+      if (other.isSetResultFiles()) {
+        this.resultFiles = other.resultFiles;
       }
     }
 
-    public search_result deepCopy() {
-      return new search_result(this);
+    public sendResult_args deepCopy() {
+      return new sendResult_args(this);
     }
 
     @Override
     public void clear() {
-      this.success = null;
+      this.senderIP = null;
+      this.senderPort = null;
+      this.resultFiles = null;
     }
 
-    public String getSuccess() {
-      return this.success;
+    public String getSenderIP() {
+      return this.senderIP;
     }
 
-    public search_result setSuccess(String success) {
-      this.success = success;
+    public sendResult_args setSenderIP(String senderIP) {
+      this.senderIP = senderIP;
       return this;
     }
 
-    public void unsetSuccess() {
-      this.success = null;
+    public void unsetSenderIP() {
+      this.senderIP = null;
     }
 
-    /** Returns true if field success is set (has been assigned a value) and false otherwise */
-    public boolean isSetSuccess() {
-      return this.success != null;
+    /** Returns true if field senderIP is set (has been assigned a value) and false otherwise */
+    public boolean isSetSenderIP() {
+      return this.senderIP != null;
     }
 
-    public void setSuccessIsSet(boolean value) {
+    public void setSenderIPIsSet(boolean value) {
       if (!value) {
-        this.success = null;
+        this.senderIP = null;
+      }
+    }
+
+    public String getSenderPort() {
+      return this.senderPort;
+    }
+
+    public sendResult_args setSenderPort(String senderPort) {
+      this.senderPort = senderPort;
+      return this;
+    }
+
+    public void unsetSenderPort() {
+      this.senderPort = null;
+    }
+
+    /** Returns true if field senderPort is set (has been assigned a value) and false otherwise */
+    public boolean isSetSenderPort() {
+      return this.senderPort != null;
+    }
+
+    public void setSenderPortIsSet(boolean value) {
+      if (!value) {
+        this.senderPort = null;
+      }
+    }
+
+    public String getResultFiles() {
+      return this.resultFiles;
+    }
+
+    public sendResult_args setResultFiles(String resultFiles) {
+      this.resultFiles = resultFiles;
+      return this;
+    }
+
+    public void unsetResultFiles() {
+      this.resultFiles = null;
+    }
+
+    /** Returns true if field resultFiles is set (has been assigned a value) and false otherwise */
+    public boolean isSetResultFiles() {
+      return this.resultFiles != null;
+    }
+
+    public void setResultFilesIsSet(boolean value) {
+      if (!value) {
+        this.resultFiles = null;
       }
     }
 
     public void setFieldValue(_Fields field, Object value) {
       switch (field) {
-      case SUCCESS:
+      case SENDER_IP:
         if (value == null) {
-          unsetSuccess();
+          unsetSenderIP();
         } else {
-          setSuccess((String)value);
+          setSenderIP((String)value);
+        }
+        break;
+
+      case SENDER_PORT:
+        if (value == null) {
+          unsetSenderPort();
+        } else {
+          setSenderPort((String)value);
+        }
+        break;
+
+      case RESULT_FILES:
+        if (value == null) {
+          unsetResultFiles();
+        } else {
+          setResultFiles((String)value);
         }
         break;
 
@@ -2044,8 +2509,14 @@ public class NodeService {
 
     public Object getFieldValue(_Fields field) {
       switch (field) {
-      case SUCCESS:
-        return getSuccess();
+      case SENDER_IP:
+        return getSenderIP();
+
+      case SENDER_PORT:
+        return getSenderPort();
+
+      case RESULT_FILES:
+        return getResultFiles();
 
       }
       throw new IllegalStateException();
@@ -2058,8 +2529,12 @@ public class NodeService {
       }
 
       switch (field) {
-      case SUCCESS:
-        return isSetSuccess();
+      case SENDER_IP:
+        return isSetSenderIP();
+      case SENDER_PORT:
+        return isSetSenderPort();
+      case RESULT_FILES:
+        return isSetResultFiles();
       }
       throw new IllegalStateException();
     }
@@ -2068,21 +2543,39 @@ public class NodeService {
     public boolean equals(Object that) {
       if (that == null)
         return false;
-      if (that instanceof search_result)
-        return this.equals((search_result)that);
+      if (that instanceof sendResult_args)
+        return this.equals((sendResult_args)that);
       return false;
     }
 
-    public boolean equals(search_result that) {
+    public boolean equals(sendResult_args that) {
       if (that == null)
         return false;
 
-      boolean this_present_success = true && this.isSetSuccess();
-      boolean that_present_success = true && that.isSetSuccess();
-      if (this_present_success || that_present_success) {
-        if (!(this_present_success && that_present_success))
+      boolean this_present_senderIP = true && this.isSetSenderIP();
+      boolean that_present_senderIP = true && that.isSetSenderIP();
+      if (this_present_senderIP || that_present_senderIP) {
+        if (!(this_present_senderIP && that_present_senderIP))
           return false;
-        if (!this.success.equals(that.success))
+        if (!this.senderIP.equals(that.senderIP))
+          return false;
+      }
+
+      boolean this_present_senderPort = true && this.isSetSenderPort();
+      boolean that_present_senderPort = true && that.isSetSenderPort();
+      if (this_present_senderPort || that_present_senderPort) {
+        if (!(this_present_senderPort && that_present_senderPort))
+          return false;
+        if (!this.senderPort.equals(that.senderPort))
+          return false;
+      }
+
+      boolean this_present_resultFiles = true && this.isSetResultFiles();
+      boolean that_present_resultFiles = true && that.isSetResultFiles();
+      if (this_present_resultFiles || that_present_resultFiles) {
+        if (!(this_present_resultFiles && that_present_resultFiles))
+          return false;
+        if (!this.resultFiles.equals(that.resultFiles))
           return false;
       }
 
@@ -2093,28 +2586,58 @@ public class NodeService {
     public int hashCode() {
       List<Object> list = new ArrayList<Object>();
 
-      boolean present_success = true && (isSetSuccess());
-      list.add(present_success);
-      if (present_success)
-        list.add(success);
+      boolean present_senderIP = true && (isSetSenderIP());
+      list.add(present_senderIP);
+      if (present_senderIP)
+        list.add(senderIP);
+
+      boolean present_senderPort = true && (isSetSenderPort());
+      list.add(present_senderPort);
+      if (present_senderPort)
+        list.add(senderPort);
+
+      boolean present_resultFiles = true && (isSetResultFiles());
+      list.add(present_resultFiles);
+      if (present_resultFiles)
+        list.add(resultFiles);
 
       return list.hashCode();
     }
 
     @Override
-    public int compareTo(search_result other) {
+    public int compareTo(sendResult_args other) {
       if (!getClass().equals(other.getClass())) {
         return getClass().getName().compareTo(other.getClass().getName());
       }
 
       int lastComparison = 0;
 
-      lastComparison = Boolean.valueOf(isSetSuccess()).compareTo(other.isSetSuccess());
+      lastComparison = Boolean.valueOf(isSetSenderIP()).compareTo(other.isSetSenderIP());
       if (lastComparison != 0) {
         return lastComparison;
       }
-      if (isSetSuccess()) {
-        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.success, other.success);
+      if (isSetSenderIP()) {
+        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.senderIP, other.senderIP);
+        if (lastComparison != 0) {
+          return lastComparison;
+        }
+      }
+      lastComparison = Boolean.valueOf(isSetSenderPort()).compareTo(other.isSetSenderPort());
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+      if (isSetSenderPort()) {
+        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.senderPort, other.senderPort);
+        if (lastComparison != 0) {
+          return lastComparison;
+        }
+      }
+      lastComparison = Boolean.valueOf(isSetResultFiles()).compareTo(other.isSetResultFiles());
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+      if (isSetResultFiles()) {
+        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.resultFiles, other.resultFiles);
         if (lastComparison != 0) {
           return lastComparison;
         }
@@ -2126,31 +2649,47 @@ public class NodeService {
       return _Fields.findByThriftId(fieldId);
     }
 
-    public void read(org.apache.thrift.protocol.TProtocol iprot) throws org.apache.thrift.TException {
+    public void read(org.apache.thrift.protocol.TProtocol iprot) throws TException {
       schemes.get(iprot.getScheme()).getScheme().read(iprot, this);
     }
 
-    public void write(org.apache.thrift.protocol.TProtocol oprot) throws org.apache.thrift.TException {
+    public void write(org.apache.thrift.protocol.TProtocol oprot) throws TException {
       schemes.get(oprot.getScheme()).getScheme().write(oprot, this);
-      }
+    }
 
     @Override
     public String toString() {
-      StringBuilder sb = new StringBuilder("search_result(");
+      StringBuilder sb = new StringBuilder("sendResult_args(");
       boolean first = true;
 
-      sb.append("success:");
-      if (this.success == null) {
+      sb.append("senderIP:");
+      if (this.senderIP == null) {
         sb.append("null");
       } else {
-        sb.append(this.success);
+        sb.append(this.senderIP);
+      }
+      first = false;
+      if (!first) sb.append(", ");
+      sb.append("senderPort:");
+      if (this.senderPort == null) {
+        sb.append("null");
+      } else {
+        sb.append(this.senderPort);
+      }
+      first = false;
+      if (!first) sb.append(", ");
+      sb.append("resultFiles:");
+      if (this.resultFiles == null) {
+        sb.append("null");
+      } else {
+        sb.append(this.resultFiles);
       }
       first = false;
       sb.append(")");
       return sb.toString();
     }
 
-    public void validate() throws org.apache.thrift.TException {
+    public void validate() throws TException {
       // check for required fields
       // check for sub-struct validity
     }
@@ -2158,7 +2697,7 @@ public class NodeService {
     private void writeObject(java.io.ObjectOutputStream out) throws java.io.IOException {
       try {
         write(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(out)));
-      } catch (org.apache.thrift.TException te) {
+      } catch (TException te) {
         throw new java.io.IOException(te);
       }
     }
@@ -2166,20 +2705,20 @@ public class NodeService {
     private void readObject(java.io.ObjectInputStream in) throws java.io.IOException, ClassNotFoundException {
       try {
         read(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(in)));
-      } catch (org.apache.thrift.TException te) {
+      } catch (TException te) {
         throw new java.io.IOException(te);
       }
     }
 
-    private static class search_resultStandardSchemeFactory implements SchemeFactory {
-      public search_resultStandardScheme getScheme() {
-        return new search_resultStandardScheme();
+    private static class sendResult_argsStandardSchemeFactory implements SchemeFactory {
+      public sendResult_argsStandardScheme getScheme() {
+        return new sendResult_argsStandardScheme();
       }
     }
 
-    private static class search_resultStandardScheme extends StandardScheme<search_result> {
+    private static class sendResult_argsStandardScheme extends StandardScheme<sendResult_args> {
 
-      public void read(org.apache.thrift.protocol.TProtocol iprot, search_result struct) throws org.apache.thrift.TException {
+      public void read(org.apache.thrift.protocol.TProtocol iprot, sendResult_args struct) throws TException {
         org.apache.thrift.protocol.TField schemeField;
         iprot.readStructBegin();
         while (true)
@@ -2189,10 +2728,26 @@ public class NodeService {
             break;
           }
           switch (schemeField.id) {
-            case 0: // SUCCESS
+            case 1: // SENDER_IP
               if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
-                struct.success = iprot.readString();
-                struct.setSuccessIsSet(true);
+                struct.senderIP = iprot.readString();
+                struct.setSenderIPIsSet(true);
+              } else { 
+                org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+              }
+              break;
+            case 2: // SENDER_PORT
+              if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
+                struct.senderPort = iprot.readString();
+                struct.setSenderPortIsSet(true);
+              } else { 
+                org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+              }
+              break;
+            case 3: // RESULT_FILES
+              if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
+                struct.resultFiles = iprot.readString();
+                struct.setResultFilesIsSet(true);
               } else { 
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
@@ -2208,13 +2763,23 @@ public class NodeService {
         struct.validate();
       }
 
-      public void write(org.apache.thrift.protocol.TProtocol oprot, search_result struct) throws org.apache.thrift.TException {
+      public void write(org.apache.thrift.protocol.TProtocol oprot, sendResult_args struct) throws TException {
         struct.validate();
 
         oprot.writeStructBegin(STRUCT_DESC);
-        if (struct.success != null) {
-          oprot.writeFieldBegin(SUCCESS_FIELD_DESC);
-          oprot.writeString(struct.success);
+        if (struct.senderIP != null) {
+          oprot.writeFieldBegin(SENDER_IP_FIELD_DESC);
+          oprot.writeString(struct.senderIP);
+          oprot.writeFieldEnd();
+        }
+        if (struct.senderPort != null) {
+          oprot.writeFieldBegin(SENDER_PORT_FIELD_DESC);
+          oprot.writeString(struct.senderPort);
+          oprot.writeFieldEnd();
+        }
+        if (struct.resultFiles != null) {
+          oprot.writeFieldBegin(RESULT_FILES_FIELD_DESC);
+          oprot.writeString(struct.resultFiles);
           oprot.writeFieldEnd();
         }
         oprot.writeFieldStop();
@@ -2223,35 +2788,303 @@ public class NodeService {
 
     }
 
-    private static class search_resultTupleSchemeFactory implements SchemeFactory {
-      public search_resultTupleScheme getScheme() {
-        return new search_resultTupleScheme();
+    private static class sendResult_argsTupleSchemeFactory implements SchemeFactory {
+      public sendResult_argsTupleScheme getScheme() {
+        return new sendResult_argsTupleScheme();
       }
     }
 
-    private static class search_resultTupleScheme extends TupleScheme<search_result> {
+    private static class sendResult_argsTupleScheme extends TupleScheme<sendResult_args> {
 
       @Override
-      public void write(org.apache.thrift.protocol.TProtocol prot, search_result struct) throws org.apache.thrift.TException {
+      public void write(org.apache.thrift.protocol.TProtocol prot, sendResult_args struct) throws TException {
         TTupleProtocol oprot = (TTupleProtocol) prot;
         BitSet optionals = new BitSet();
-        if (struct.isSetSuccess()) {
+        if (struct.isSetSenderIP()) {
           optionals.set(0);
         }
-        oprot.writeBitSet(optionals, 1);
-        if (struct.isSetSuccess()) {
-          oprot.writeString(struct.success);
+        if (struct.isSetSenderPort()) {
+          optionals.set(1);
+        }
+        if (struct.isSetResultFiles()) {
+          optionals.set(2);
+        }
+        oprot.writeBitSet(optionals, 3);
+        if (struct.isSetSenderIP()) {
+          oprot.writeString(struct.senderIP);
+        }
+        if (struct.isSetSenderPort()) {
+          oprot.writeString(struct.senderPort);
+        }
+        if (struct.isSetResultFiles()) {
+          oprot.writeString(struct.resultFiles);
         }
       }
 
       @Override
-      public void read(org.apache.thrift.protocol.TProtocol prot, search_result struct) throws org.apache.thrift.TException {
+      public void read(org.apache.thrift.protocol.TProtocol prot, sendResult_args struct) throws TException {
         TTupleProtocol iprot = (TTupleProtocol) prot;
-        BitSet incoming = iprot.readBitSet(1);
+        BitSet incoming = iprot.readBitSet(3);
         if (incoming.get(0)) {
-          struct.success = iprot.readString();
-          struct.setSuccessIsSet(true);
+          struct.senderIP = iprot.readString();
+          struct.setSenderIPIsSet(true);
         }
+        if (incoming.get(1)) {
+          struct.senderPort = iprot.readString();
+          struct.setSenderPortIsSet(true);
+        }
+        if (incoming.get(2)) {
+          struct.resultFiles = iprot.readString();
+          struct.setResultFilesIsSet(true);
+        }
+      }
+    }
+
+  }
+
+  public static class sendResult_result implements org.apache.thrift.TBase<sendResult_result, sendResult_result._Fields>, java.io.Serializable, Cloneable, Comparable<sendResult_result>   {
+    private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("sendResult_result");
+
+
+    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
+    static {
+      schemes.put(StandardScheme.class, new sendResult_resultStandardSchemeFactory());
+      schemes.put(TupleScheme.class, new sendResult_resultTupleSchemeFactory());
+    }
+
+
+    /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
+    public enum _Fields implements org.apache.thrift.TFieldIdEnum {
+;
+
+      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
+
+      static {
+        for (_Fields field : EnumSet.allOf(_Fields.class)) {
+          byName.put(field.getFieldName(), field);
+        }
+      }
+
+      /**
+       * Find the _Fields constant that matches fieldId, or null if its not found.
+       */
+      public static _Fields findByThriftId(int fieldId) {
+        switch(fieldId) {
+          default:
+            return null;
+        }
+      }
+
+      /**
+       * Find the _Fields constant that matches fieldId, throwing an exception
+       * if it is not found.
+       */
+      public static _Fields findByThriftIdOrThrow(int fieldId) {
+        _Fields fields = findByThriftId(fieldId);
+        if (fields == null) throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+        return fields;
+      }
+
+      /**
+       * Find the _Fields constant that matches name, or null if its not found.
+       */
+      public static _Fields findByName(String name) {
+        return byName.get(name);
+      }
+
+      private final short _thriftId;
+      private final String _fieldName;
+
+      _Fields(short thriftId, String fieldName) {
+        _thriftId = thriftId;
+        _fieldName = fieldName;
+      }
+
+      public short getThriftFieldId() {
+        return _thriftId;
+      }
+
+      public String getFieldName() {
+        return _fieldName;
+      }
+    }
+    public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
+    static {
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
+      metaDataMap = Collections.unmodifiableMap(tmpMap);
+      org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(sendResult_result.class, metaDataMap);
+    }
+
+    public sendResult_result() {
+    }
+
+    /**
+     * Performs a deep copy on <i>other</i>.
+     */
+    public sendResult_result(sendResult_result other) {
+    }
+
+    public sendResult_result deepCopy() {
+      return new sendResult_result(this);
+    }
+
+    @Override
+    public void clear() {
+    }
+
+    public void setFieldValue(_Fields field, Object value) {
+      switch (field) {
+      }
+    }
+
+    public Object getFieldValue(_Fields field) {
+      switch (field) {
+      }
+      throw new IllegalStateException();
+    }
+
+    /** Returns true if field corresponding to fieldID is set (has been assigned a value) and false otherwise */
+    public boolean isSet(_Fields field) {
+      if (field == null) {
+        throw new IllegalArgumentException();
+      }
+
+      switch (field) {
+      }
+      throw new IllegalStateException();
+    }
+
+    @Override
+    public boolean equals(Object that) {
+      if (that == null)
+        return false;
+      if (that instanceof sendResult_result)
+        return this.equals((sendResult_result)that);
+      return false;
+    }
+
+    public boolean equals(sendResult_result that) {
+      if (that == null)
+        return false;
+
+      return true;
+    }
+
+    @Override
+    public int hashCode() {
+      List<Object> list = new ArrayList<Object>();
+
+      return list.hashCode();
+    }
+
+    @Override
+    public int compareTo(sendResult_result other) {
+      if (!getClass().equals(other.getClass())) {
+        return getClass().getName().compareTo(other.getClass().getName());
+      }
+
+      int lastComparison = 0;
+
+      return 0;
+    }
+
+    public _Fields fieldForId(int fieldId) {
+      return _Fields.findByThriftId(fieldId);
+    }
+
+    public void read(org.apache.thrift.protocol.TProtocol iprot) throws TException {
+      schemes.get(iprot.getScheme()).getScheme().read(iprot, this);
+    }
+
+    public void write(org.apache.thrift.protocol.TProtocol oprot) throws TException {
+      schemes.get(oprot.getScheme()).getScheme().write(oprot, this);
+      }
+
+    @Override
+    public String toString() {
+      StringBuilder sb = new StringBuilder("sendResult_result(");
+      boolean first = true;
+
+      sb.append(")");
+      return sb.toString();
+    }
+
+    public void validate() throws TException {
+      // check for required fields
+      // check for sub-struct validity
+    }
+
+    private void writeObject(java.io.ObjectOutputStream out) throws java.io.IOException {
+      try {
+        write(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(out)));
+      } catch (TException te) {
+        throw new java.io.IOException(te);
+      }
+    }
+
+    private void readObject(java.io.ObjectInputStream in) throws java.io.IOException, ClassNotFoundException {
+      try {
+        read(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(in)));
+      } catch (TException te) {
+        throw new java.io.IOException(te);
+      }
+    }
+
+    private static class sendResult_resultStandardSchemeFactory implements SchemeFactory {
+      public sendResult_resultStandardScheme getScheme() {
+        return new sendResult_resultStandardScheme();
+      }
+    }
+
+    private static class sendResult_resultStandardScheme extends StandardScheme<sendResult_result> {
+
+      public void read(org.apache.thrift.protocol.TProtocol iprot, sendResult_result struct) throws TException {
+        org.apache.thrift.protocol.TField schemeField;
+        iprot.readStructBegin();
+        while (true)
+        {
+          schemeField = iprot.readFieldBegin();
+          if (schemeField.type == org.apache.thrift.protocol.TType.STOP) { 
+            break;
+          }
+          switch (schemeField.id) {
+            default:
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+          }
+          iprot.readFieldEnd();
+        }
+        iprot.readStructEnd();
+
+        // check for required fields of primitive type, which can't be checked in the validate method
+        struct.validate();
+      }
+
+      public void write(org.apache.thrift.protocol.TProtocol oprot, sendResult_result struct) throws TException {
+        struct.validate();
+
+        oprot.writeStructBegin(STRUCT_DESC);
+        oprot.writeFieldStop();
+        oprot.writeStructEnd();
+      }
+
+    }
+
+    private static class sendResult_resultTupleSchemeFactory implements SchemeFactory {
+      public sendResult_resultTupleScheme getScheme() {
+        return new sendResult_resultTupleScheme();
+      }
+    }
+
+    private static class sendResult_resultTupleScheme extends TupleScheme<sendResult_result> {
+
+      @Override
+      public void write(org.apache.thrift.protocol.TProtocol prot, sendResult_result struct) throws TException {
+        TTupleProtocol oprot = (TTupleProtocol) prot;
+      }
+
+      @Override
+      public void read(org.apache.thrift.protocol.TProtocol prot, sendResult_result struct) throws TException {
+        TTupleProtocol iprot = (TTupleProtocol) prot;
       }
     }
 

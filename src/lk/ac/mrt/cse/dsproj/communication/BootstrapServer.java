@@ -1,4 +1,4 @@
-package lk.ac.mrt.cse.dsproj.Communication;
+package lk.ac.mrt.cse.dsproj.communication;
 
 import lk.ac.mrt.cse.dsproj.Node;
 
@@ -9,7 +9,6 @@ import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.*;
-import java.io.*;
 
 /**
  * Created by shenal on 1/4/16.
