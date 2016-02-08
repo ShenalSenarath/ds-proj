@@ -72,7 +72,7 @@ public class StartPage extends javax.swing.JFrame {
             }
         });
 
-        jLabel3.setText("Host Ip");
+        jLabel3.setText("Server Ip");
 
         hostIp.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -80,7 +80,7 @@ public class StartPage extends javax.swing.JFrame {
             }
         });
 
-        jLabel4.setText("Host Port");
+        jLabel4.setText("Server Port");
 
         hostPort.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {

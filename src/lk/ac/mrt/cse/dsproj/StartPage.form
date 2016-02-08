@@ -116,7 +116,7 @@
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel3">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Host Ip"/>
+        <Property name="text" type="java.lang.String" value="Server Ip"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JTextField" name="hostIp">
@@ -126,7 +126,7 @@
     </Component>
     <Component class="javax.swing.JLabel" name="jLabel4">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Host Port"/>
+        <Property name="text" type="java.lang.String" value="Server Port"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JTextField" name="hostPort">
