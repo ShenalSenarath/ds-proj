@@ -18,10 +18,12 @@ public class Node implements Runnable {
     private ArrayList<Node> peers;
     private ArrayList<Node> neighbours;
     private String[] fileList;
+    public NodePage nodePage;
 
     public void setFileList(String[] fileList) {
         this.fileList = fileList;
         this.printFIleList(fileList);
+       
     }
 
     public Node(int nodePort) throws UnknownHostException {
@@ -30,6 +32,8 @@ public class Node implements Runnable {
         peers = new ArrayList<Node>();
         neighbours= new ArrayList<Node>();
     }
+    
+  
 
     @Override
     public String toString() {
@@ -42,6 +46,16 @@ public class Node implements Runnable {
     public Node(InetAddress nodeIP, int nodePort) {
         this.nodeIP = nodeIP;
         this.nodePort = nodePort;
+    }
+    
+    public  void    addFile(String fileName){
+        String[] files= new String[this.fileList.length+1];
+        for(int i=0;i<fileList.length;i++){
+            files[i]=fileList[i];
+        }
+        files[this.fileList.length]=fileName;
+        this.fileList =files;
+        this.printFIleList(files);
     }
 
     public InetAddress getNodeIP() {
@@ -80,6 +94,11 @@ public class Node implements Runnable {
         } catch (SocketException e) {
             System.out.println("Cannot initiate the UDP server for the Node.");
         }
+                
+        
+        nodePage = new NodePage(this);
+        nodePage.setVisible(true);
+          
 
         byte[] receiveData = new byte[256];
 
@@ -139,7 +158,9 @@ public class Node implements Runnable {
 
                     case "SEROK":
                         System.out.println("Search results returned");
+                        this.nodePage.setResult(sentence);
                         System.out.println(sentence);
+                        
                         break;
 
                     case "ERROR":

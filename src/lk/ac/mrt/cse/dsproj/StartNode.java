@@ -15,6 +15,8 @@ import java.util.LinkedList;
  * Created by shenal on 1/8/16.
  */
 public class StartNode {
+    
+    private static StartPage startPage;
     //Need to implement methods to read files names and queries and add it to a list.
     private static String[] all_files = {
             "Adventures of Tintin",
@@ -39,7 +41,13 @@ public class StartNode {
             "Hacking for Dummies"	};
 
     public static void main(String args[]) throws Exception {
-        startNode(args);
+        startPage=new StartPage();
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                startPage.setVisible(true);
+            }
+        });
+//        startNode(args);
     }
 
     public static String[] getRandomFiles(){
@@ -68,6 +76,7 @@ public class StartNode {
             BootstrapServer.startConnection(getByName(args[1]),Integer.parseInt(args[2]));
             BootstrapServer server=BootstrapServer.getInstance();
             boolean success = false;
+            System.out.println(args[3]);
 
             while(attempt_count < 3){
                 if(server.registerNode(thisNode, args[3])){
@@ -75,6 +84,7 @@ public class StartNode {
                     success = true;
                     //randomly add fiels
                     thisNode.setFileList(getRandomFiles());
+                    startPage.setVisible(false);
                     break;
                 }else{
                     Thread.sleep(5000);
@@ -113,17 +123,17 @@ public class StartNode {
 //            System.out.println("Add the titles in this Node:");
 //            System.out.println("Syntax: title1,title2,title3");
 
-            Scanner scanIn = new Scanner(System.in);
-//            String titles = scanIn.nextLine();
-
-//            thisNode.setFileList(titles.split(","));
-            
-            
-            System.out.println("Enter A File name to search ");
-            String fileName = scanIn.nextLine();
-            
-            scanIn.close();
-            thisNode.initiateSearch(fileName);
+//            Scanner scanIn = new Scanner(System.in);
+////            String titles = scanIn.nextLine();
+//
+////            thisNode.setFileList(titles.split(","));
+//            
+//            
+//            System.out.println("Enter A File name to search ");
+//            String fileName = scanIn.nextLine();
+//            
+//            scanIn.close();
+//            thisNode.initiateSearch(fileName);
             
 
             //thisNode.initiateSearch();

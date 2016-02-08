@@ -115,7 +115,7 @@ public class BootstrapServer {
         String result = sendMsg(finalMsg);// Expected Format: length REGOK numberOfNodes ip1 port1 ip2 port2
         System.out.println("result : "+result);
         String [] resultArr=result.split(" ");
-        if (!resultArr[1].equals("REGOK") || (Integer.parseInt(resultArr[2])>=9996)) {
+        if (!resultArr[1].equals("REGOK") || (Integer.parseInt(resultArr[2])>=99996)) {
             return false;
         }
 

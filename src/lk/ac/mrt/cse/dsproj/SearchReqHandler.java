@@ -30,7 +30,7 @@ public class SearchReqHandler extends Thread{
             //this node does not have any matching files
             //propagating to neighbours
             System.out.println("No matching files found. Propagating request to neighbours");
-            ArrayList<Node> neighbours = mainNode.getNeighbours();
+            ArrayList<Node> neighbours = (ArrayList<Node>) mainNode.getNeighbours().clone();
             query.decrementHopsLeft();
             while(!neighbours.isEmpty() && query.hopsLeft()){
                 Node n = neighbours.remove(0);
