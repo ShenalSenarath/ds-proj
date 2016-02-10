@@ -1,21 +1,64 @@
-package lk.ac.mrt.cse.dsproj;
+package lk.ac.mrt.cse.dsproj.rpc;
 
+import lk.ac.mrt.cse.dsproj.Node;
+import lk.ac.mrt.cse.dsproj.StartPage;
 import lk.ac.mrt.cse.dsproj.communication.BootstrapServer;
+import org.apache.thrift.server.TNonblockingServer;
+import org.apache.thrift.server.TServer;
+import org.apache.thrift.server.TThreadPoolServer;
+import org.apache.thrift.transport.TNonblockingServerSocket;
+import org.apache.thrift.transport.TNonblockingServerTransport;
+import org.apache.thrift.transport.TServerSocket;
+import org.apache.thrift.transport.TTransportException;
 
 import java.io.IOException;
 import java.net.UnknownHostException;
-import java.util.Scanner;
-import java.util.Random;
 import java.util.Arrays;
-import java.util.List;
-import static java.net.InetAddress.getByName;
 import java.util.LinkedList;
+import java.util.List;
+import java.util.Random;
+
+import static java.net.InetAddress.getByName;
+import static org.apache.thrift.server.TNonblockingServer.*;
 
 /**
- * Created by shenal on 1/8/16.
+ * Created by dewmal on 2/8/16.
  */
-public class StartNode {
-    
+public class Server {
+
+    private void start(Node node) {
+        try {
+            node.joinNeighbours();
+            Thread thread = new Thread(node);
+            thread.start();
+            Thread.sleep((long)1000);
+            //node.show();
+            TNonblockingServerTransport serverTransport = new TNonblockingServerSocket(node.getNodePort());
+            NodeService.Processor processor = new NodeService.Processor(new NodeServiceImpl(node));
+
+            TServer server = new TNonblockingServer(new TNonblockingServer.Args(serverTransport).
+                    processor(processor));
+            System.out.println("Starting server on port "+node.getNodePort());
+            server.serve();
+
+        } catch (TTransportException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void main(String[] args) {
+        startPage=new StartPage(new Server());
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                startPage.setVisible(true);
+            }
+        });
+//        Server srv = new Server();
+//        srv.start();
+    }
+
     private static StartPage startPage;
     //Need to implement methods to read files names and queries and add it to a list.
     private static String[] all_files = {
@@ -40,15 +83,6 @@ public class StartNode {
             "American Idol",
             "Hacking for Dummies"	};
 
-    public static void main(String args[]) throws Exception {
-        startPage=new StartPage();
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                startPage.setVisible(true);
-            }
-        });
-//        startNode(args);
-    }
 
     public static String[] getRandomFiles(){
         Random r = new Random();
@@ -56,7 +90,6 @@ public class StartNode {
         int file_count = r.nextInt(3) + 3 ; //random.nextInt(max - min + 1) + min
         String []fileList = new String[file_count];
         List<String> all_files_list = new LinkedList<String>(Arrays.asList(all_files));
-        //List<String> all_files_list = Arrays.asList(all_files); //String [] to List
 
         for( int i=0; i < file_count; i++){
             fileList[i] = all_files_list.remove(r.nextInt(all_files_list.size()-1) );
@@ -64,7 +97,7 @@ public class StartNode {
         return fileList;
     }
 
-    public static void startNode(String args[]){
+    public void startNode(String args[]){
         int attempt_count = 0;
         try{
             System.out.println("Initializing Node.....");
@@ -73,7 +106,7 @@ public class StartNode {
             System.out.println("Registering Node with the Bootstrap Server....");
 
             //bootstrap server ip address and port
-            BootstrapServer.startConnection(getByName(args[1]),Integer.parseInt(args[2]));
+            BootstrapServer.startConnection(getByName(args[1]), Integer.parseInt(args[2]));
             BootstrapServer server=BootstrapServer.getInstance();
             boolean success = false;
             System.out.println(args[3]);
@@ -100,43 +133,16 @@ public class StartNode {
             if(!success){
                 System.exit(1);
             }
+            this.start(thisNode);
 
-            /*
-            if(server.registerNode(thisNode, args[3])){
-                System.out.println("Node Successfully registered with the Bootstrap Server. ");
-            }else{
-            	attempt_count++;
-                System.out.println("Error registering node");
-                System.exit(1);
-            }*/
-
-            System.out.println("UDP Server for the Node initializing....");
-            Thread thread = new Thread(thisNode);
-            thread.start();
-            Thread.sleep((long)1000);
-
-            System.out.println("Node joining with neighbours...");
-            thisNode.joinNeighbours();
-
-            //File adding part done differently
-            
-//            System.out.println("Add the titles in this Node:");
-//            System.out.println("Syntax: title1,title2,title3");
-
-//            Scanner scanIn = new Scanner(System.in);
-////            String titles = scanIn.nextLine();
+//            System.out.println("UDP Server for the Node initializing....");
+//            Thread thread = new Thread(thisNode);
+//            thread.start();
+//            Thread.sleep((long)1000);
 //
-////            thisNode.setFileList(titles.split(","));
-//            
-//            
-//            System.out.println("Enter A File name to search ");
-//            String fileName = scanIn.nextLine();
-//            
-//            scanIn.close();
-//            thisNode.initiateSearch(fileName);
-            
+//            System.out.println("Node joining with neighbours...");
+//            thisNode.joinNeighbours();
 
-            //thisNode.initiateSearch();
 
         }catch(NumberFormatException | ArrayIndexOutOfBoundsException e){
             System.out.println("Please enter the details in the correct format to start the Node.");

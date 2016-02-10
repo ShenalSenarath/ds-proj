@@ -1,5 +1,14 @@
 package lk.ac.mrt.cse.dsproj;
 
+import lk.ac.mrt.cse.dsproj.rpc.NodeService;
+import org.apache.thrift.TException;
+import org.apache.thrift.protocol.TBinaryProtocol;
+import org.apache.thrift.protocol.TProtocol;
+import org.apache.thrift.transport.TFramedTransport;
+import org.apache.thrift.transport.TSocket;
+import org.apache.thrift.transport.TTransport;
+import org.apache.thrift.transport.TTransportException;
+
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -83,100 +92,109 @@ public class Node implements Runnable {
     }
 
     public ArrayList<Node> getNeighbours() {
-        return neighbours;
+        return (ArrayList<Node>) neighbours.clone();
     }
 
+    public void show(){
+        nodePage = new NodePage(this);
+        java.awt.EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                nodePage.setVisible(true);
+            }
+        });
+
+    }
     @Override
     public void run()  {
-        DatagramSocket serverSocket = null;
-        try {
-            serverSocket = new DatagramSocket(this.nodePort);
-        } catch (SocketException e) {
-            System.out.println("Cannot initiate the UDP server for the Node.");
-        }
-                
+//        DatagramSocket serverSocket = null;
+//        try {
+//            serverSocket = new DatagramSocket(this.nodePort);
+//        } catch (SocketException e) {
+//            System.out.println("Cannot initiate the UDP server for the Node.");
+//        }
+//
         
         nodePage = new NodePage(this);
         nodePage.setVisible(true);
           
 
-        byte[] receiveData = new byte[256];
+//        byte[] receiveData = new byte[256];
 
-        while(true)
-            try{
-                DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
-                serverSocket.receive(receivePacket);
-
-                String sentence = new String( receivePacket.getData());
-                System.out.println("RECEIVED: " + sentence);
-                InetAddress IPAddress = receivePacket.getAddress();
-
-                String [] resultArr = sentence.split(" ");
-
-                switch (resultArr[1]){
-                    case "JOIN":
-                        System.out.println("Join request found. Passing to handler");
-                        JoinReqHandler jh = new JoinReqHandler(sentence, this);
-                        jh.start();
-                        break;
-
-                    case "JOINOK":
-                        if(resultArr[2].trim().equals("0000")){
-                            System.out.println("JOIN request successful");
-                        }else{
-                            if(resultArr[2].trim().equals("9999")){
-                                System.out.println("JOIN request failed");
-                            }else{
-                                System.out.println("JOIN request failed with UNKNOWN ERROR");
-                            }
-                        }
-                        break;
-
-                    case "LEAVE":
-                        System.out.println("Join request found. Passing to handler");
-                        LeaveReqHandler lh = new LeaveReqHandler(sentence, this);
-                        lh.start();
-                        break;
-
-                    case "LEAVEOK":
-                        if(resultArr[2].trim().equals("0000")){
-                            System.out.println("LEAVE request successful");
-                        }else{
-                            if(resultArr[2].trim().equals("9999")){
-                                System.out.println("LEAVE request failed");
-                            }else{
-                                System.out.println("LEAVE request failed with UNKNOWN ERROR");
-                            }
-                        }
-                        break;
-
-                    case "SER":
-                        System.out.println("Search request found. Passing to handler");
-                        SearchReqHandler sh = new SearchReqHandler(sentence, this);
-                        sh.start();
-                        break;
-
-                    case "SEROK":
-                        System.out.println("Search results returned");
-                        this.nodePage.setResult(sentence);
-                        System.out.println(sentence);
-                        
-                        break;
-
-                    case "ERROR":
-                        //Generic error message, to indicate that a given command is not understood.
-                        //For storing and searching files/keys this should be send to the initiator of the message.
-                        System.out.println("Generic error. Command is not understood");
-                        System.exit(1);
-                        break;
-
-                    default:
-                        System.out.println("Invalid Message");
-                        System.exit(1);
-                }
-            } catch (Exception e ){
-                e.printStackTrace();
-            }
+//        while(true)
+//            try{
+//                DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
+//                serverSocket.receive(receivePacket);
+//
+//                String sentence = new String( receivePacket.getData());
+//                System.out.println("RECEIVED: " + sentence);
+//                InetAddress IPAddress = receivePacket.getAddress();
+//
+//                String [] resultArr = sentence.split(" ");
+//
+//                switch (resultArr[1]){
+//                    case "JOIN":
+//                        System.out.println("Join request found. Passing to handler");
+//                        JoinReqHandler jh = new JoinReqHandler(sentence, this);
+//                        jh.start();
+//                        break;
+//
+//                    case "JOINOK":
+//                        if(resultArr[2].trim().equals("0000")){
+//                            System.out.println("JOIN request successful");
+//                        }else{
+//                            if(resultArr[2].trim().equals("9999")){
+//                                System.out.println("JOIN request failed");
+//                            }else{
+//                                System.out.println("JOIN request failed with UNKNOWN ERROR");
+//                            }
+//                        }
+//                        break;
+//
+//                    case "LEAVE":
+//                        System.out.println("Join request found. Passing to handler");
+//                        LeaveReqHandler lh = new LeaveReqHandler(sentence, this);
+//                        lh.start();
+//                        break;
+//
+//                    case "LEAVEOK":
+//                        if(resultArr[2].trim().equals("0000")){
+//                            System.out.println("LEAVE request successful");
+//                        }else{
+//                            if(resultArr[2].trim().equals("9999")){
+//                                System.out.println("LEAVE request failed");
+//                            }else{
+//                                System.out.println("LEAVE request failed with UNKNOWN ERROR");
+//                            }
+//                        }
+//                        break;
+//
+//                    case "SER":
+//                        System.out.println("Search request found. Passing to handler");
+//                        SearchReqHandler sh = new SearchReqHandler(sentence, this);
+//                        sh.start();
+//                        break;
+//
+//                    case "SEROK":
+//                        System.out.println("Search results returned");
+//                        this.nodePage.setResult(sentence);
+//                        System.out.println(sentence);
+//
+//                        break;
+//
+//                    case "ERROR":
+//                        //Generic error message, to indicate that a given command is not understood.
+//                        //For storing and searching files/keys this should be send to the initiator of the message.
+//                        System.out.println("Generic error. Command is not understood");
+//                        System.exit(1);
+//                        break;
+//
+//                    default:
+//                        System.out.println("Invalid Message");
+//                        System.exit(1);
+//                }
+//            } catch (Exception e ){
+//                e.printStackTrace();
+//            }
     }
 
     public void joinNeighbours() {
@@ -341,12 +359,27 @@ public class Node implements Runnable {
         System.out.println("Joining with node" + node);
         //length JOIN IP_address port_no
 
-        String msg=" JOIN "+ this.getNodeIP().getHostAddress()+" "+ this.getNodePort()+" ";
-        int size = msg.length();
-        String formattedSize = String.format("%04d", (size+4));
-        String finalMsg=formattedSize.concat(msg);
-        sendMessage(node.getNodeIP(), node.getNodePort(), finalMsg);
-        addNeighbour(node);
+        TTransport transport;
+        try {
+            transport = new TFramedTransport(new TSocket(""+node.getNodeIP().getHostAddress(), node.getNodePort()));
+            TProtocol protocol = new TBinaryProtocol(transport);
+
+            NodeService.Client client = new NodeService.Client(protocol);
+            transport.open();
+
+            String result = client.join(""+getNodeIP().getHostAddress(), getNodePort());
+
+            if(result.equals("JOIN OK")){
+                this.addNeighbour(node);
+            }
+
+
+            transport.close();
+        } catch (TTransportException e) {
+            e.printStackTrace();
+        } catch (TException e) {
+            e.printStackTrace();
+        }
     }
 
     public void leave(Node node) throws IOException{

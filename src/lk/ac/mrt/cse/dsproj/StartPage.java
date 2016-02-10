@@ -13,7 +13,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
-import lk.ac.mrt.cse.dsproj.Communication.BootstrapServer;
+import lk.ac.mrt.cse.dsproj.communication.BootstrapServer;
+import lk.ac.mrt.cse.dsproj.rpc.Server;
 
 /**
  *
@@ -24,8 +25,15 @@ public class StartPage extends javax.swing.JFrame {
     /**
      * Creates new form StartPage
      */
+    private Server server;
     
     public StartPage() {
+        initComponents();
+    }
+
+    public StartPage(Server sr) {
+        this.server=sr;
+
         initComponents();
     }
 
@@ -161,7 +169,7 @@ public class StartPage extends javax.swing.JFrame {
         args[1] = hostIp.getText();
         args[2] = hostPort.getText();
         args[3] = username.getText();
-        StartNode.startNode(args);
+        this.server.startNode(args);
         
     }//GEN-LAST:event_jButton1ActionPerformed
 
