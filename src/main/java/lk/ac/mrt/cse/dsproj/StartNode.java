@@ -122,6 +122,7 @@ public class StartNode {
             thisNode.leaveSystem();
 
             if(server.unregisterNode(thisNode,args[3])){
+                System.out.println("Succefully unregistered");
                 System.exit(0);
             }
 

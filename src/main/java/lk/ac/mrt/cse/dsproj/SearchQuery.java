@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
  * Created by shenal on 1/4/16.
  */
 public class SearchQuery {
-    static final int INITIALHOPS=10;
+    static final int INITIALHOPS=3;
     private int hopLimit;
     private String[] searchString;
     private String searchStringFull;

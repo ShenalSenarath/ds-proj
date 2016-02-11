@@ -158,7 +158,7 @@ public class Node implements Runnable {
     public void leaveSystem() {
         int numberOfNeighbours = neighbours.size();
         if(numberOfNeighbours > 0){ //When there are no neighbours for this node
-            for (Node n : neighbours) {
+            for (Node n : (ArrayList<Node>)neighbours.clone()) {
                 try {
                     leave(n);
                 } catch (IOException e) {
@@ -304,7 +304,7 @@ public class Node implements Runnable {
             NodeService.Client client = new NodeService.Client(protocol);
             transport.open();
 
-            client.search(sq.getSearchStringFull(),sq.getRequester().getNodeIP().getHostName(),""+sq.getRequester().getNodePort(),sq.getHopsLeft());
+            client.search(sq.getSearchStringFull(),sq.getRequester().getNodeIP().getHostAddress(),""+sq.getRequester().getNodePort(),sq.getHopsLeft());
 
 
             transport.close();
@@ -355,12 +355,23 @@ public class Node implements Runnable {
     public void leave(Node node) throws IOException{
         System.out.println("Node leaving the system. ");
         // length LEAVE IP_address port_no
+        TTransport transport;
+        try {
+            transport = new TFramedTransport(new TSocket(""+node.getNodeIP().getHostAddress(), node.getNodePort()));
+            TProtocol protocol = new TBinaryProtocol(transport);
 
-        String msg=" LEAVE "+ this.getNodeIP().getHostAddress()+" "+ this.getNodePort()+" ";
-        int size = msg.length();
-        String formattedSize = String.format("%04d", (size+4));
-        String finalMsg=formattedSize.concat(msg);
-        sendMessage(node.getNodeIP(), node.getNodePort(), finalMsg);
+            NodeService.Client client = new NodeService.Client(protocol);
+            transport.open();
+
+            client.leave(""+this.getNodeIP().getHostAddress(), ""+this.getNodePort());
+            System.out.println("leved from "+node);
+
+
+            transport.close();
+        } catch (TException e) {
+            e.printStackTrace();
+        }
+
         removeNeighbour(node);
     }
 
