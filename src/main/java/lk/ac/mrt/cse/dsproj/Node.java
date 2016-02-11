@@ -277,7 +277,7 @@ public class Node implements Runnable {
 
         TTransport transport;
         try {
-            transport = new TFramedTransport(new TSocket(""+node.getNodeIP(), node.getNodePort()));
+            transport = new TFramedTransport(new TSocket(""+node.getNodeIP().getHostAddress(), node.getNodePort()));
             TProtocol protocol = new TBinaryProtocol(transport);
 
             NodeService.Client client = new NodeService.Client(protocol);
@@ -320,6 +320,7 @@ public class Node implements Runnable {
             String result = client.join(""+getNodeIP().getHostAddress(), getNodePort());
 
             if(result.equals("JOIN OK")){
+                System.out.println("Joined with node" + node);
                 this.addNeighbour(node);
             }
 

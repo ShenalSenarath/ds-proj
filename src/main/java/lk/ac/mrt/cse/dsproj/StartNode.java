@@ -104,12 +104,19 @@ public class StartNode {
             System.out.println("RPC Server for the Node initializing....");
             Thread thread = new Thread(thisNode);
             thread.start();
-            Thread.sleep((long)1000);
+            Thread.sleep((long) 1000);
 
             System.out.println("Node joining with neighbours...");
             thisNode.joinNeighbours();
-
-
+            do {
+                System.out.println("Enter name to search");
+                Scanner sc = new Scanner(System.in);
+                String filename= sc.nextLine();
+                if(filename.equals("exit")){
+                    break;
+                }
+                thisNode.initiateSearch(filename);
+            }while (true);
         }catch(NumberFormatException | ArrayIndexOutOfBoundsException e){
             System.out.println("Please enter the details in the correct format to start the Node.");
             System.out.println("Syntax: java StartNode NodePort BootstrapServerIP BootstrapServerPort ");
