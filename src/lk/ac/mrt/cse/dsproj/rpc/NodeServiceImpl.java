@@ -1,6 +1,9 @@
 package lk.ac.mrt.cse.dsproj.rpc;
 
+import lk.ac.mrt.cse.dsproj.JoinReqHandler;
 import lk.ac.mrt.cse.dsproj.Node;
+import lk.ac.mrt.cse.dsproj.SearchQuery;
+import lk.ac.mrt.cse.dsproj.SearchReqHandler;
 import org.apache.thrift.TException;
 
 import java.net.InetAddress;
@@ -12,9 +15,9 @@ import java.net.UnknownHostException;
 public class NodeServiceImpl implements NodeService.Iface {
     private Node thisNode;
 
-    public NodeServiceImpl(Node n){
+    public NodeServiceImpl(Node thisNode){
 
-        this.thisNode=n;
+        this.thisNode=thisNode;
     }
 
     @Override
@@ -30,11 +33,19 @@ public class NodeServiceImpl implements NodeService.Iface {
 
     @Override
     public void search(String keyWord, String requesterIP, String requesterPort, int hops) throws TException {
+        SearchQuery query= null;
+        try {
+            query = new SearchQuery(new Node(InetAddress.getByName(requesterIP),Integer.parseInt(requesterPort)),keyWord,hops);
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        }
+        SearchReqHandler searchReqHandler = new SearchReqHandler(query,thisNode);
+        searchReqHandler.start();
 
     }
 
     @Override
     public void sendResult(String senderIP, String senderPort, String resultFiles) throws TException {
-
+        System.out.println("Search Result"+senderIP+":"+senderPort+" "+resultFiles);
     }
 }

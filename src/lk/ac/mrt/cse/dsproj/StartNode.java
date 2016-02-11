@@ -41,13 +41,13 @@ public class StartNode {
             "Hacking for Dummies"	};
 
     public static void main(String args[]) throws Exception {
-        startPage=new StartPage();
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                startPage.setVisible(true);
-            }
-        });
-//        startNode(args);
+//        startPage=new StartPage();
+//        java.awt.EventQueue.invokeLater(new Runnable() {
+//            public void run() {
+//                startPage.setVisible(true);
+//            }
+//        });
+        startNode(args);
     }
 
     public static String[] getRandomFiles(){
@@ -84,7 +84,7 @@ public class StartNode {
                     success = true;
                     //randomly add fiels
                     thisNode.setFileList(getRandomFiles());
-                    startPage.setVisible(false);
+                    //startPage.setVisible(false);
                     break;
                 }else{
                     Thread.sleep(5000);
@@ -101,16 +101,7 @@ public class StartNode {
                 System.exit(1);
             }
 
-            /*
-            if(server.registerNode(thisNode, args[3])){
-                System.out.println("Node Successfully registered with the Bootstrap Server. ");
-            }else{
-            	attempt_count++;
-                System.out.println("Error registering node");
-                System.exit(1);
-            }*/
-
-            System.out.println("UDP Server for the Node initializing....");
+            System.out.println("RPC Server for the Node initializing....");
             Thread thread = new Thread(thisNode);
             thread.start();
             Thread.sleep((long)1000);
@@ -118,25 +109,6 @@ public class StartNode {
             System.out.println("Node joining with neighbours...");
             thisNode.joinNeighbours();
 
-            //File adding part done differently
-            
-//            System.out.println("Add the titles in this Node:");
-//            System.out.println("Syntax: title1,title2,title3");
-
-//            Scanner scanIn = new Scanner(System.in);
-////            String titles = scanIn.nextLine();
-//
-////            thisNode.setFileList(titles.split(","));
-//            
-//            
-//            System.out.println("Enter A File name to search ");
-//            String fileName = scanIn.nextLine();
-//            
-//            scanIn.close();
-//            thisNode.initiateSearch(fileName);
-            
-
-            //thisNode.initiateSearch();
 
         }catch(NumberFormatException | ArrayIndexOutOfBoundsException e){
             System.out.println("Please enter the details in the correct format to start the Node.");

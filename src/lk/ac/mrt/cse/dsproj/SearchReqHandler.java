@@ -18,10 +18,18 @@ public class SearchReqHandler extends Thread{
         mainNode = n;
     }
 
+    public SearchReqHandler(SearchQuery searchQuery, Node thisNode){
+        this.query=searchQuery;
+        this.mainNode=thisNode;
+    }
+
     @Override
     public void run() {
-        //length SER IP port file_name hops
-        query = new SearchQuery(requestMessage);
+
+        if(query==null) {
+            //length SER IP port file_name hops
+            query = new SearchQuery(requestMessage);
+        }
 
         //search here
         String result = mainNode.searchFileList(query);

@@ -5,17 +5,6 @@
  */
 package lk.ac.mrt.cse.dsproj;
 
-import java.io.IOException;
-import static java.net.InetAddress.getByName;
-import java.net.UnknownHostException;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Random;
-import java.util.Scanner;
-import lk.ac.mrt.cse.dsproj.communication.BootstrapServer;
-import lk.ac.mrt.cse.dsproj.rpc.Server;
-
 /**
  *
  * @author dewmal
@@ -25,17 +14,12 @@ public class StartPage extends javax.swing.JFrame {
     /**
      * Creates new form StartPage
      */
-    private Server server;
+
     
     public StartPage() {
         initComponents();
     }
 
-    public StartPage(Server sr) {
-        this.server=sr;
-
-        initComponents();
-    }
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -169,7 +153,7 @@ public class StartPage extends javax.swing.JFrame {
         args[1] = hostIp.getText();
         args[2] = hostPort.getText();
         args[3] = username.getText();
-        this.server.startNode(args);
+       // this.server.startNode(args);
         
     }//GEN-LAST:event_jButton1ActionPerformed
 
