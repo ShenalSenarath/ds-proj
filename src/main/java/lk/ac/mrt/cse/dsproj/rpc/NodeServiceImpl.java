@@ -48,4 +48,13 @@ public class NodeServiceImpl implements NodeService.Iface {
     public void sendResult(String senderIP, String senderPort, String resultFiles) throws TException {
         System.out.println("Search Result"+senderIP+":"+senderPort+" "+resultFiles);
     }
+
+    @Override
+    public void leave(String senderIP, String senderPort) throws TException {
+        try {
+            thisNode.leaveNabor(senderIP,Integer.parseInt(senderPort));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }

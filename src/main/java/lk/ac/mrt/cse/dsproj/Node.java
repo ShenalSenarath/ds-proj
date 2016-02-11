@@ -185,6 +185,26 @@ public class Node implements Runnable {
 
     public void respondToSearch(Node node, String result, int hops) throws IOException{
         System.out.println("Responding to node" + node);
+
+        TTransport transport;
+        try {
+            transport = new TFramedTransport(new TSocket(""+node.getNodeIP().getHostAddress(), node.getNodePort()));
+            TProtocol protocol = new TBinaryProtocol(transport);
+
+            NodeService.Client client = new NodeService.Client(protocol);
+            transport.open();
+
+            client.sendResult(this.getNodeIP().getHostAddress(),""+this.getNodePort(),result);
+
+
+            transport.close();
+        } catch (TTransportException e) {
+            e.printStackTrace();
+        } catch (TException e) {
+            e.printStackTrace();
+        }
+
+        /*
         //length SEROK no_files IP port hops filename1 filename2 ... ...
         //e.g 0114 SEROK 3 129.82.128.1 2301 baby_go_home.mp3 baby_come_back.mp3 baby.mpeg
 
@@ -200,6 +220,7 @@ public class Node implements Runnable {
         String formattedSize = String.format("%04d", (size+4));
         String finalMsg=formattedSize.concat(msg);
         sendMessage(node.getNodeIP(), node.getNodePort(), finalMsg);
+        */
     }
 
     public void initiateSearch(String file_name, int hops) throws IOException{
@@ -283,7 +304,7 @@ public class Node implements Runnable {
             NodeService.Client client = new NodeService.Client(protocol);
             transport.open();
 
-            client.search(sq.getSearchStringFull(),sq.getRequester().toString(),""+sq.getRequester().getNodePort(),sq.getHopsLeft());
+            client.search(sq.getSearchStringFull(),sq.getRequester().getNodeIP().getHostName(),""+sq.getRequester().getNodePort(),sq.getHopsLeft());
 
 
             transport.close();
@@ -375,19 +396,40 @@ public class Node implements Runnable {
         return result;
     }
     private static InetAddress getLocalAddress(){
+        InetAddress myIp = null;
         try {
-            Enumeration<NetworkInterface> b = NetworkInterface.getNetworkInterfaces();
-            while( b.hasMoreElements()){
-                for ( InterfaceAddress f : b.nextElement().getInterfaceAddresses())
-                    if ( f.getAddress().isSiteLocalAddress())
-                        return f.getAddress();
+            for (final Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces( );interfaces.hasMoreElements( ); )
+            {
+                final NetworkInterface cur = interfaces.nextElement( );
+                if ( cur.isLoopback( ) ) continue;
+                for ( final InterfaceAddress addr : cur.getInterfaceAddresses( ) ) {
+
+                    myIp = addr.getAddress( );
+                    if ( !( myIp instanceof Inet4Address) ) continue;
+                }
             }
-            return InetAddress.getLocalHost();
-        } catch (SocketException e) {
+        }catch (Exception e){
             e.printStackTrace();
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
+        }finally {
+            try {
+                if (myIp == null) {
+                    myIp = InetAddress.getLocalHost();
+                }
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+            return myIp;
         }
-        return null;
+
+    }
+
+    public void leaveNabor(String nodeIp, int port){
+
+        for(Node n:this.neighbours){
+            if(n.getNodePort()==port && n.getNodeIP().getHostAddress().equals(nodeIp)){
+                this.neighbours.remove(n);
+                break;
+            }
+        }
     }
 }

@@ -109,7 +109,8 @@ public class StartNode {
             System.out.println("Node joining with neighbours...");
             thisNode.joinNeighbours();
             do {
-                System.out.println("Enter name to search");
+                System.out.println("Enter\"exit\" to leave");
+                System.out.println("Enter name to search:");
                 Scanner sc = new Scanner(System.in);
                 String filename= sc.nextLine();
                 if(filename.equals("exit")){
@@ -117,6 +118,13 @@ public class StartNode {
                 }
                 thisNode.initiateSearch(filename);
             }while (true);
+
+            thisNode.leaveSystem();
+
+            if(server.unregisterNode(thisNode,args[3])){
+                System.exit(0);
+            }
+
         }catch(NumberFormatException | ArrayIndexOutOfBoundsException e){
             System.out.println("Please enter the details in the correct format to start the Node.");
             System.out.println("Syntax: java StartNode NodePort BootstrapServerIP BootstrapServerPort ");
